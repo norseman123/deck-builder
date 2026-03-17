@@ -99,6 +99,17 @@ function checkTimeline() {
 function playCard(index) {
     if (p.time > e.time) return; let card = p.hand[index];
     
+    // If it's a Power, add it to our active buffs, burn the card, and end the logic immediately
+    if (card.isPower) {
+        p.powers.push(card.name);
+        p.time += card.time; p.hand.splice(index, 1); drawCards(1); checkTimeline(); return;
+    }
+
+    // --- PASSIVE POWER CHECKS ---
+    // If you have Chronostasis, every card you play pushes the enemy 1 Time into the future
+    if (p.powers.includes("Chronostasis")) e.time += 1;
+    // ----------------------------
+    
     let dmgToDeal = card.damage || 0;
     if (card.damageFromBlock) dmgToDeal += p.block;
     if (card.randomDamage) {
