@@ -39,9 +39,12 @@ function startCombat(isBoss) {
     getElem('player-class-name').innerText = selectedClass; getElem('enemy-name').innerText = e.name;
     getElem('player-relics').innerHTML = playerRelics.map(r => `<div class="relic-icon" title="${r.desc}">${r.name}</div>`).join('');
 
-    drawCards(5); generateEnemyIntent(); renderTimeline(); checkTimeline();
+    // FIX: Render the timeline FIRST so the UI doesn't crash when drawing cards!
+    renderTimeline(); 
+    drawCards(5); 
+    generateEnemyIntent(); 
+    checkTimeline();
 }
-
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); getElem(id).classList.add('active'); }
 
 function drawCards(amount) {
