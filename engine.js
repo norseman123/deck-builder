@@ -126,43 +126,17 @@ function triggerTraps(oldTime, newTime) {
     }
 }
 
-function executeEnemyAction() {
-    // Determine which intent fires based on what timeline the player is hiding in
-    let activeIntent = (selectedClass === "The Wanderer" && p.inAltTimeline) ? e.altIntent : e.intent;
-    
-    if (activeIntent.type === "attack") dealDamage(p, activeIntent.value); else e.block += activeIntent.value;
-    
-    let oldTime = e.time;
-    if (e.rooted > 0) { e.rooted--; } else { e.time += activeIntent.time; }
-    
-    triggerTraps(oldTime, e.time);
-    generateEnemyIntent();
-}
-
-function checkTimeline() {
-    updateCombatUI();
-    if (p.health <= 0) { setTimeout(() => { alert("You died."); location.reload(); }, 500); return; }
-    if (e.health <= 0) { setTimeout(() => { alert("You won!"); location.reload(); }, 500); return; }
-    
-    if (p.time <= e.time) { 
-        getElem('turn-indicator').innerText = "Player Turn"; updateCombatUI(); 
-    } else { 
-        getElem('turn-indicator').innerText = "Enemy Action..."; 
-        p.cardsPlayedThisTurn = 0; document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); 
-        setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); 
-    }
-}
-
-function dealDamage(target, amount, ignoreBlock=false) {
-    if(!ignoreBlock && target.block > 0) {
-        if(target.block >= amount) { target.block -= amount; return; }
-        else { amount -= target.block; target.block = 0; }
-    }
-    target.health -= amount;
-}
-
 function playCard(index) {
-    if (p.time > e.time) return; let card = p.hand[index];
+    // NEW: The enemy has priority if touching or behind you, UNLESS they are rooted!
+    if (p.time >= e.time && e.rooted <= 0) return; 
+    
+    let card = p.hand[index];
+
+    // NEW: If you are touching or past the enemy and play a card, consume 1 Root stack
+    if (p.time >= e.time && e.rooted > 0) {
+        e.rooted--;
+    }
+
     p.cardsPlayedThisTurn++;
     
     // Resolve Time Cost (Anchors or RNG)
@@ -187,6 +161,44 @@ function playCard(index) {
     if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>1) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
     
     p.time += timeCost; p.discardPile.push(card); p.hand.splice(index, 1); drawCards(1); checkTimeline();
+}
+
+function checkTimeline() {
+    updateCombatUI();
+    if (p.health <= 0) { setTimeout(() => { alert("You died."); location.reload(); }, 500); return; }
+    if (e.health <= 0) { setTimeout(() => { alert("You won!"); location.reload(); }, 500); return; }
+    
+    // NEW: "Touching you (p.time == e.time) or after you (p.time > e.time)" means Enemy Turn
+    if (p.time >= e.time) { 
+        
+        // NEW: Stoic can pass the enemy if they are rooted!
+        if (e.rooted > 0) {
+            getElem('turn-indicator').innerText = `Player Turn (Enemy Rooted!)`; 
+            updateCombatUI(); 
+            return; // Let the player continue playing cards past the enemy
+        }
+
+        getElem('turn-indicator').innerText = "Enemy Action..."; 
+        p.cardsPlayedThisTurn = 0; 
+        document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); 
+        setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); 
+    } else { 
+        getElem('turn-indicator').innerText = "Player Turn"; 
+        updateCombatUI(); 
+    }
+}
+
+function executeEnemyAction() {
+    let activeIntent = (selectedClass === "The Wanderer" && p.inAltTimeline) ? e.altIntent : e.intent;
+    
+    if (activeIntent.type === "attack") dealDamage(p, activeIntent.value); else e.block += activeIntent.value;
+    
+    let oldTime = e.time;
+    // Root logic was removed from here so the enemy isn't permanently stuck
+    e.time += activeIntent.time; 
+    
+    triggerTraps(oldTime, e.time);
+    generateEnemyIntent();
 }
 
 function renderCardHTML(card) {
