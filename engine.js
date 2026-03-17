@@ -62,11 +62,16 @@ function openCampfire() {
 }
 function restAtCampfire() { p.health = Math.min(p.maxHealth, p.health + 20); currentFloor++; returnToMap(); }
 
+let traps = []; // Stores active traps on the timeline
+
 function startCombat(isBoss) {
     showScreen('screen-combat');
     let eData = isBoss ? ENEMIES[2] : ENEMIES[Math.floor(Math.random() * 2)];
     e.name = eData.name; e.maxHealth = eData.hp; e.health = eData.hp; e.time = 2; e.block = 0; e.isBoss = isBoss;
-    p.block = 0; p.time = 0; p.drawPile = masterDeck.map(clone).sort(() => Math.random() - 0.5); p.discardPile = []; p.hand = [];
+    
+    // Reset player stats, traps, and momentum
+    p.block = 0; p.time = 0; p.cardsPlayedThisTurn = 0; traps = [];
+    p.drawPile = masterDeck.map(clone).sort(() => Math.random() - 0.5); p.discardPile = []; p.hand = [];
     
     if (playerRelics.find(r => r.name === "Holy Symbol")) p.block += 5;
 
@@ -92,25 +97,34 @@ function checkTimeline() {
     updateCombatUI();
     if (p.health <= 0) { setTimeout(() => endCombat(false), 500); return; }
     if (e.health <= 0) { setTimeout(() => endCombat(true), 500); return; }
-    if (p.time <= e.time) { getElem('turn-indicator').innerText = "Player Turn"; updateCombatUI(); } 
-    else { getElem('turn-indicator').innerText = "Enemy Action..."; document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); }
+    if (p.time <= e.time) { 
+        getElem('turn-indicator').innerText = "Player Turn"; 
+        updateCombatUI(); 
+    } else { 
+        getElem('turn-indicator').innerText = "Enemy Action..."; 
+        p.cardsPlayedThisTurn = 0; // Reset momentum when your turn ends
+        document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); 
+        setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); 
+    }
+}
+
+function executeEnemyAction() {
+    if (e.intent.type === "attack") dealDamage(p, e.intent.value); else e.block += e.intent.value;
+    let oldTime = e.time;
+    e.time += e.intent.time; 
+    triggerTraps(oldTime, e.time); // Traps trigger when the enemy acts!
+    generateEnemyIntent();
 }
 
 function playCard(index) {
     if (p.time > e.time) return; let card = p.hand[index];
     
-    // If it's a Power, add it to our active buffs, burn the card, and end the logic immediately
-    if (card.isPower) {
-        p.powers.push(card.name);
-        p.time += card.time; p.hand.splice(index, 1); drawCards(1); checkTimeline(); return;
-    }
-
-    // --- PASSIVE POWER CHECKS ---
-    // If you have Chronostasis, every card you play pushes the enemy 1 Time into the future
-    if (p.powers.includes("Chronostasis")) e.time += 1;
-    // ----------------------------
+    p.cardsPlayedThisTurn = (p.cardsPlayedThisTurn || 0) + 1; // Increment combo tracker
     
     let dmgToDeal = card.damage || 0;
+    // Add Momentum damage (multiplied by how many cards you've played before this one)
+    if (card.momentumDamage) dmgToDeal += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
+    
     if (card.damageFromBlock) dmgToDeal += p.block;
     if (card.randomDamage) {
         let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice") ? 2 : 0);
@@ -121,21 +135,33 @@ function playCard(index) {
     let hits = card.hits || 1;
     for(let i=0; i<hits; i++) { if (dmgToDeal > 0) dealDamage(e, dmgToDeal); }
     
+    // Laying a Trap
+    if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
+    
     if (card.block) p.block += card.block; 
     if (card.heal) p.health = Math.min(p.maxHealth, p.health + card.heal);
     if (card.draw) drawCards(card.draw);
-    if (card.delayEnemy) e.time += card.delayEnemy; 
+    if (card.delayEnemy) {
+        let oldTime = e.time;
+        e.time += card.delayEnemy; 
+        triggerTraps(oldTime, e.time); // Pushing the enemy can force them onto a trap!
+    }
     if (card.selfDamage) { dealDamage(p, card.selfDamage, true); if (playerRelics.find(r=>r.name==="Spiked Collar")) p.block += 3; }
     if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>1) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
     
     p.time += card.time; p.discardPile.push(card); p.hand.splice(index, 1); drawCards(1); checkTimeline();
 }
-
-function waitTurn() { if(p.time>e.time)return; p.time++; if(p.hand.length>0) { p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); drawCards(1); } checkTimeline(); }
-
-function executeEnemyAction() {
-    if (e.intent.type === "attack") dealDamage(p, e.intent.value); else e.block += e.intent.value;
-    e.time += e.intent.time; generateEnemyIntent();
+function triggerTraps(oldTime, newTime) {
+    if (newTime > oldTime) {
+        for (let i = traps.length - 1; i >= 0; i--) {
+            let t = traps[i];
+            // If the enemy's timeline marker moves over the trap's integer, BOOM.
+            if (oldTime < t.time && newTime >= t.time) {
+                dealDamage(e, t.damage);
+                traps.splice(i, 1); // Remove trap after it explodes
+            }
+        }
+    }
 }
 
 function generateEnemyIntent() {
