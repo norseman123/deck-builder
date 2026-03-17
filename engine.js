@@ -157,15 +157,33 @@ function renderCardHTML(card) {
 }
 
 function renderTimeline() {
-    let c = getElem('timeline-container'); c.innerHTML = '<div id="player-marker" class="timeline-marker">P</div><div id="enemy-marker" class="timeline-marker">E</div>';
-    for(let i=0; i<=20; i++) { let t = document.createElement('div'); t.style = `position:absolute; height:12px; width:2px; background:#555; top:14px; left:${(i/20)*100}%;`; if(i%5===0) { t.style.height='20px'; t.style.top='10px'; t.style.background='#888'; } c.appendChild(t); }
+    let c = getElem('timeline-container'); 
+    c.innerHTML = '<div id="player-marker" class="timeline-marker">P</div><div id="enemy-marker" class="timeline-marker">E</div>';
+    
+    // Draws ticks from -10 to +10, with a massive golden line in the center for "Now"
+    for(let i=-10; i<=10; i++) { 
+        let t = document.createElement('div'); 
+        let percent = ((i + 10) / 20) * 100;
+        t.style = `position:absolute; height:12px; width:2px; background:#555; top:14px; left:${percent}%;`; 
+        if (i === 0) { t.style.height='30px'; t.style.top='5px'; t.style.background='var(--color-time)'; t.style.width='4px'; t.style.zIndex='5'; } 
+        else if (i%5===0) { t.style.height='20px'; t.style.top='10px'; t.style.background='#888'; } 
+        c.appendChild(t); 
+    }
 }
 
 function updateCombatUI() {
-    let bT = Math.min(p.time, e.time);
-    getElem('player-marker').style.left = `${Math.min(100, ((p.time-bT)/20)*100)}%`; getElem('enemy-marker').style.left = `${Math.min(100, ((e.time-bT)/20)*100)}%`;
+    let bT = Math.min(p.time, e.time); // The current turn is always anchored to the center "0"
+    
+    // Each 1 unit of time moves you 5% away from the center
+    let pOffset = (p.time - bT) * 5; 
+    let eOffset = (e.time - bT) * 5;
+    
+    getElem('player-marker').style.left = `${Math.min(100, Math.max(0, 50 + pOffset))}%`; 
+    getElem('enemy-marker').style.left = `${Math.min(100, Math.max(0, 50 + eOffset))}%`;
+    
     getElem('player-hp-text').innerText = `${Math.max(0,p.health)}/${p.maxHealth}`; getElem('player-hp-fill').style.width = `${Math.max(0,(p.health/p.maxHealth)*100)}%`; getElem('player-block').innerText = p.block;
     getElem('enemy-hp-text').innerText = `${Math.max(0,e.health)}/${e.maxHealth}`; getElem('enemy-hp-fill').style.width = `${Math.max(0,(e.health/e.maxHealth)*100)}%`; getElem('enemy-block').innerText = e.block;
+    
     let hc = getElem('hand-container'); hc.innerHTML = ''; let isP = p.time <= e.time;
     p.hand.forEach((card, i) => { let c = renderCardHTML(card); if(!isP) c.classList.add('disabled'); if(isP) c.onclick = () => playCard(i); hc.appendChild(c); });
 }
