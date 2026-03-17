@@ -1,79 +1,40 @@
-let selectedClass = "Masochist";
+let selectedClass = "";
 let masterDeck = []; let playerRelics = [];
-let currentFloor = 0; 
-// Added 'powers' array to both player and enemy
-let p = { maxHealth:80, health:80, block:0, time:0, drawPile:[], discardPile:[], hand:[], powers:[] };
-let e = { health:60, maxHealth:60, block:0, time:2, isBoss:false, powers:[] };
+let currentFloor = 1; 
+
+// New State Variables
+let p = { maxHealth: 80, health: 80, block: 0, time: 0, drawPile: [], discardPile: [], hand: [], cardsPlayedThisTurn: 0, anchored: 0, inAltTimeline: false };
+let e = { health: 60, maxHealth: 60, block: 0, time: 2, isBoss: false, rooted: 0, intent: {}, altIntent: {} };
+let traps = [];
 
 function getElem(id) { return document.getElementById(id); }
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); getElem(id).classList.add('active'); }
 
-function startGame() {
-    let c = CLASS_DATA[selectedClass];
-    p.maxHealth = c.maxHp; p.health = c.maxHp; 
-    playerRelics = [...c.relics]; 
-    masterDeck = c.starter.map(clone);
-    currentFloor = 0; generateMap(); updateMapUI(); showScreen('screen-map');
+function initGame() {
+    selectedClass = getElem('class-select').value;
+    let clsData = CLASSES[selectedClass];
+    playerRelics.push(clsData.relic);
+    masterDeck = clone(clsData.pool);
+    // Give base cards
+    for(let i=0; i<3; i++) masterDeck.push(clone(clsData.pool[0])); 
+    for(let i=0; i<3; i++) masterDeck.push(clone(clsData.pool[1]));
+    getElem('screen-start').classList.remove('active');
+    startCombat(false);
 }
-
-function switchClass(className) { selectedClass = className; startGame(); }
-
-function generateMap() {
-    let mc = getElem('map-container'); mc.innerHTML = '<div class="map-line"></div>';
-    for(let i = MAP_LAYOUT.length - 1; i >= 0; i--) {
-        let row = document.createElement('div'); row.className = 'map-floor';
-        let node = document.createElement('div'); node.id = `node-${i}`;
-        let type = MAP_LAYOUT[i];
-        if (type === 'boss') { node.className = 'map-node boss'; node.innerText = 'B'; node.onclick = () => startCombat(true); } 
-        else if (type === 'campfire') { node.className = 'map-node campfire'; node.innerText = 'C'; node.onclick = () => openCampfire(); }
-        else { node.className = 'map-node'; node.innerText = `F${i+1}`; node.onclick = () => startCombat(false); }
-        row.appendChild(node); mc.appendChild(row);
-    }
-}
-
-function updateMapUI() {
-    getElem('map-hp').innerText = `${p.health}/${p.maxHealth}`; getElem('map-deck-size').innerText = masterDeck.length;
-    for(let i=0; i<MAP_LAYOUT.length; i++) {
-        let node = getElem(`node-${i}`); node.className = 'map-node ' + MAP_LAYOUT[i];
-        if (i < currentFloor) node.classList.add('completed'); else if (i > currentFloor) node.classList.add('locked');
-    }
-}
-
-function returnToMap() { updateMapUI(); showScreen('screen-map'); }
-
-function openCampfire() {
-    showScreen('screen-campfire');
-    let cc = getElem('campfire-container'); cc.innerHTML = '';
-    masterDeck.forEach((card, index) => {
-        let cDiv = renderCardHTML(card);
-        if (card.isUpgraded) { cDiv.classList.add('disabled'); } 
-        else {
-            cDiv.onclick = () => {
-                let uCard = masterDeck[index]; uCard.isUpgraded = true; uCard.name = uCard.name + "+";
-                if(uCard.damage) uCard.damage += 3; if(uCard.block) uCard.block += 3;
-                if(uCard.poison) uCard.poison += 2; if(uCard.time > 1) uCard.time -= 1; 
-                if(uCard.randomDamage) uCard.randomDamage[1] += 5;
-                currentFloor++; returnToMap();
-            };
-        }
-        cc.appendChild(cDiv);
-    });
-}
-function restAtCampfire() { p.health = Math.min(p.maxHealth, p.health + 20); currentFloor++; returnToMap(); }
-
-let traps = []; // Stores active traps on the timeline
 
 function startCombat(isBoss) {
     showScreen('screen-combat');
     let eData = isBoss ? ENEMIES[2] : ENEMIES[Math.floor(Math.random() * 2)];
-    e.name = eData.name; e.maxHealth = eData.hp; e.health = eData.hp; e.time = 2; e.block = 0; e.isBoss = isBoss;
+    e.name = eData.name; e.maxHealth = eData.hp; e.health = eData.hp; e.time = 2; e.block = 0; e.isBoss = isBoss; e.rooted = 0;
     
-    // Reset player stats, traps, and momentum
-    p.block = 0; p.time = 0; p.cardsPlayedThisTurn = 0; traps = [];
+    p.block = 0; p.time = 0; p.cardsPlayedThisTurn = 0; p.anchored = 0; traps = [];
+    p.inAltTimeline = !!playerRelics.find(r => r.name === "Pocket Dimension");
+    
     p.drawPile = masterDeck.map(clone).sort(() => Math.random() - 0.5); p.discardPile = []; p.hand = [];
     
-    if (playerRelics.find(r => r.name === "Holy Symbol")) p.block += 5;
+    if (playerRelics.find(r => r.name === "Rusty Bear Trap")) traps.push({ time: 4, damage: 10 });
+    if (playerRelics.find(r => r.name === "Adrenaline Spike")) p.cardsPlayedThisTurn += 2;
+    if (playerRelics.find(r => r.name === "Heavy Boots")) p.anchored = 1;
 
     getElem('player-class-name').innerText = selectedClass; getElem('enemy-name').innerText = e.name;
     getElem('player-relics').innerHTML = playerRelics.map(r => `<div class="relic-icon" title="${r.desc}">${r.name}</div>`).join('');
@@ -81,148 +42,162 @@ function startCombat(isBoss) {
     drawCards(5); generateEnemyIntent(); renderTimeline(); checkTimeline();
 }
 
-function endCombat(victory) {
-    if (!victory) { alert("Died."); startGame(); return; }
-    currentFloor++; if (e.isBoss) { alert("VICTORY!"); startGame(); return; }
-    
-    let pool = CLASS_DATA[selectedClass].pool; let choices = [];
-    while(choices.length < 3) { let c = pool[Math.floor(Math.random() * pool.length)]; if(!choices.includes(c)) choices.push(c); }
-    
-    let dc = getElem('draft-container'); dc.innerHTML = '';
-    choices.forEach(card => { let cDiv = renderCardHTML(card); cDiv.onclick = () => { masterDeck.push(clone(card)); returnToMap(); }; dc.appendChild(cDiv); });
-    showScreen('screen-reward');
-}
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); getElem(id).classList.add('active'); }
 
-function checkTimeline() {
+function drawCards(amount) {
+    for (let i = 0; i < amount; i++) {
+        if (p.drawPile.length === 0) { p.drawPile = p.discardPile.sort(() => Math.random() - 0.5); p.discardPile = []; }
+        if (p.drawPile.length > 0 && p.hand.length < 10) p.hand.push(p.drawPile.pop());
+    }
     updateCombatUI();
-    if (p.health <= 0) { setTimeout(() => endCombat(false), 500); return; }
-    if (e.health <= 0) { setTimeout(() => endCombat(true), 500); return; }
-    if (p.time <= e.time) { 
-        getElem('turn-indicator').innerText = "Player Turn"; 
-        updateCombatUI(); 
-    } else { 
-        getElem('turn-indicator').innerText = "Enemy Action..."; 
-        p.cardsPlayedThisTurn = 0; // Reset momentum when your turn ends
-        document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); 
-        setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); 
-    }
-}
-
-function executeEnemyAction() {
-    if (e.intent.type === "attack") dealDamage(p, e.intent.value); else e.block += e.intent.value;
-    let oldTime = e.time;
-    e.time += e.intent.time; 
-    triggerTraps(oldTime, e.time); // Traps trigger when the enemy acts!
-    generateEnemyIntent();
-}
-
-function playCard(index) {
-    if (p.time > e.time) return; let card = p.hand[index];
-    
-    p.cardsPlayedThisTurn = (p.cardsPlayedThisTurn || 0) + 1; // Increment combo tracker
-    
-    let dmgToDeal = card.damage || 0;
-    // Add Momentum damage (multiplied by how many cards you've played before this one)
-    if (card.momentumDamage) dmgToDeal += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
-    
-    if (card.damageFromBlock) dmgToDeal += p.block;
-    if (card.randomDamage) {
-        let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice") ? 2 : 0);
-        dmgToDeal += Math.floor(Math.random() * (card.randomDamage[1] - min + 1)) + min;
-    }
-    if (dmgToDeal > 0 && card.time >= 3 && playerRelics.find(r => r.name === "Pocket Watch")) dmgToDeal += 4;
-    
-    let hits = card.hits || 1;
-    for(let i=0; i<hits; i++) { if (dmgToDeal > 0) dealDamage(e, dmgToDeal); }
-    
-    // Laying a Trap
-    if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
-    
-    if (card.block) p.block += card.block; 
-    if (card.heal) p.health = Math.min(p.maxHealth, p.health + card.heal);
-    if (card.draw) drawCards(card.draw);
-    if (card.delayEnemy) {
-        let oldTime = e.time;
-        e.time += card.delayEnemy; 
-        triggerTraps(oldTime, e.time); // Pushing the enemy can force them onto a trap!
-    }
-    if (card.selfDamage) { dealDamage(p, card.selfDamage, true); if (playerRelics.find(r=>r.name==="Spiked Collar")) p.block += 3; }
-    if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>1) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
-    
-    p.time += card.time; p.discardPile.push(card); p.hand.splice(index, 1); drawCards(1); checkTimeline();
-}
-function triggerTraps(oldTime, newTime) {
-    if (newTime > oldTime) {
-        for (let i = traps.length - 1; i >= 0; i--) {
-            let t = traps[i];
-            // If the enemy's timeline marker moves over the trap's integer, BOOM.
-            if (oldTime < t.time && newTime >= t.time) {
-                dealDamage(e, t.damage);
-                traps.splice(i, 1); // Remove trap after it explodes
-            }
-        }
-    }
-}
-
-function generateEnemyIntent() {
-    let r = Math.random(); let dM = e.isBoss ? 2 : 1; 
-    if (r < 0.5) { e.intent = { type: "attack", value: 10*dM, time: 3 }; getElem('enemy-intent').innerText = `ATK: ${10*dM} (+3T)`; } 
-    else { e.intent = { type: "defend", value: 8*dM, time: 2 }; getElem('enemy-intent').innerText = `DEF: ${8*dM} (+2T)`; }
-}
-
-function dealDamage(target, amt, bypass = false) { let d = amt; if (!bypass && target.block > 0) { let b = Math.min(target.block, amt); target.block -= b; d -= b; } if (d > 0) target.health -= d; }
-
-function drawCards(amt) {
-    for(let i=0; i<amt; i++) {
-        if (p.drawPile.length === 0) { if (p.discardPile.length === 0) return; p.drawPile = p.discardPile.sort(()=>Math.random()-0.5); p.discardPile = []; }
-        if (p.hand.length < 5 && p.drawPile.length > 0) p.hand.push(p.drawPile.pop());
-    }
-}
-
-function renderCardHTML(card) {
-    let d = document.createElement('div'); d.className = `card ${card.isUpgraded ? 'upgraded' : ''}`; let desc = [];
-    if(card.damage) desc.push(`Deal <span style="color:var(--color-damage)">${card.damage}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
-    if(card.damageFromBlock) desc.push(`Deal DMG equal to your <span style="color:var(--color-block)">Block</span>`);
-    if(card.randomDamage) desc.push(`Deal <span style="color:var(--color-damage)">${card.randomDamage[0]}-${card.randomDamage[1]}</span> DMG`);
-    if(card.block) desc.push(`Gain <span style="color:var(--color-block)">${card.block}</span> BLK`);
-    if(card.heal) desc.push(`Heal <span style="color:var(--color-health)">${card.heal}</span> HP`);
-    if(card.selfDamage) desc.push(`Take <span style="color:var(--color-damage)">${card.selfDamage}</span> DMG`);
-    if(card.delayEnemy) desc.push(`Delay Enemy <span style="color:var(--color-time)">${card.delayEnemy}T</span>`);
-    if(card.draw) desc.push(`Draw ${card.draw} card(s)`);
-    if(card.randomDiscard) desc.push(`Discard ${card.randomDiscard} random card(s)`);
-    d.innerHTML = `<div class="card-time">${card.time}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
 
 function renderTimeline() {
     let c = getElem('timeline-container'); 
     c.innerHTML = '<div id="player-marker" class="timeline-marker">P</div><div id="enemy-marker" class="timeline-marker">E</div>';
     
-    // Draws ticks from -10 to +10, with a massive golden line in the center for "Now"
+    // Draw Ticks (-10 to +10 relative to Now)
     for(let i=-10; i<=10; i++) { 
-        let t = document.createElement('div'); 
-        let percent = ((i + 10) / 20) * 100;
-        t.style = `position:absolute; height:12px; width:2px; background:#555; top:14px; left:${percent}%;`; 
-        if (i === 0) { t.style.height='30px'; t.style.top='5px'; t.style.background='var(--color-time)'; t.style.width='4px'; t.style.zIndex='5'; } 
-        else if (i%5===0) { t.style.height='20px'; t.style.top='10px'; t.style.background='#888'; } 
+        let t = document.createElement('div'); let percent = ((i + 10) / 20) * 100;
+        t.style = `position:absolute; height:12px; width:2px; background:#555; top:14px; left:${percent}%; z-index:1;`; 
+        if (i === 0) { t.style.height='30px'; t.style.top='5px'; t.style.background='var(--color-time)'; t.style.width='4px'; t.style.zIndex='2'; } 
         c.appendChild(t); 
     }
 }
 
 function updateCombatUI() {
-    let bT = Math.min(p.time, e.time); // The current turn is always anchored to the center "0"
-    
-    // Each 1 unit of time moves you 5% away from the center
-    let pOffset = (p.time - bT) * 5; 
-    let eOffset = (e.time - bT) * 5;
+    let bT = Math.min(p.time, e.time); // Anchor to Now
+    let pOffset = (p.time - bT) * 5; let eOffset = (e.time - bT) * 5;
     
     getElem('player-marker').style.left = `${Math.min(100, Math.max(0, 50 + pOffset))}%`; 
     getElem('enemy-marker').style.left = `${Math.min(100, Math.max(0, 50 + eOffset))}%`;
     
+    // Draw Traps visually
+    document.querySelectorAll('.trap-marker').forEach(el => el.remove());
+    traps.forEach(trap => {
+        let tOffset = (trap.time - bT) * 5;
+        if (50 + tOffset >= 0 && 50 + tOffset <= 100) {
+            let tm = document.createElement('div'); tm.className = 'trap-marker';
+            tm.style.left = `${50 + tOffset}%`; tm.title = `${trap.damage} DMG Trap`;
+            getElem('timeline-container').appendChild(tm);
+        }
+    });
+    
+    // Phase Shift Visuals
+    if (p.inAltTimeline) document.body.classList.add('alt-timeline'); else document.body.classList.remove('alt-timeline');
+    
     getElem('player-hp-text').innerText = `${Math.max(0,p.health)}/${p.maxHealth}`; getElem('player-hp-fill').style.width = `${Math.max(0,(p.health/p.maxHealth)*100)}%`; getElem('player-block').innerText = p.block;
     getElem('enemy-hp-text').innerText = `${Math.max(0,e.health)}/${e.maxHealth}`; getElem('enemy-hp-fill').style.width = `${Math.max(0,(e.health/e.maxHealth)*100)}%`; getElem('enemy-block').innerText = e.block;
+    
+    // Status Trackers
+    let pStatus = []; if(p.anchored > 0) pStatus.push(`Anchored (${p.anchored})`); if(p.cardsPlayedThisTurn > 0) pStatus.push(`Momentum: ${p.cardsPlayedThisTurn}`);
+    getElem('player-status').innerText = pStatus.join(" | ");
+    getElem('enemy-status').innerText = e.rooted > 0 ? `Rooted (${e.rooted})` : "";
     
     let hc = getElem('hand-container'); hc.innerHTML = ''; let isP = p.time <= e.time;
     p.hand.forEach((card, i) => { let c = renderCardHTML(card); if(!isP) c.classList.add('disabled'); if(isP) c.onclick = () => playCard(i); hc.appendChild(c); });
 }
 
-startGame(); // Kicks off the game once everything is loaded
+function generateEnemyIntent() {
+    let types = ["attack", "defend", "buff"];
+    e.intent = { type: types[Math.floor(Math.random()*2)], value: Math.floor(Math.random()*10)+5, time: Math.floor(Math.random()*2)+1 };
+    e.altIntent = { type: types[Math.floor(Math.random()*2)], value: Math.floor(Math.random()*8)+3, time: Math.floor(Math.random()*3)+1 };
+    
+    getElem('enemy-intent').innerText = `Main: ${e.intent.type === 'attack' ? '⚔️' : '🛡️'} ${e.intent.value} (${e.intent.time}T)`;
+    
+    let altElem = getElem('alt-intent');
+    if (selectedClass === "The Wanderer") {
+        altElem.style.display = 'block';
+        altElem.innerText = `Alt: ${e.altIntent.type === 'attack' ? '⚔️' : '🛡️'} ${e.altIntent.value} (${e.altIntent.time}T)`;
+    } else { altElem.style.display = 'none'; }
+}
+
+function triggerTraps(oldTime, newTime) {
+    if (newTime > oldTime) {
+        for (let i = traps.length - 1; i >= 0; i--) {
+            let t = traps[i];
+            if (oldTime < t.time && newTime >= t.time) {
+                dealDamage(e, t.damage); traps.splice(i, 1);
+            }
+        }
+    }
+}
+
+function executeEnemyAction() {
+    // Determine which intent fires based on what timeline the player is hiding in
+    let activeIntent = (selectedClass === "The Wanderer" && p.inAltTimeline) ? e.altIntent : e.intent;
+    
+    if (activeIntent.type === "attack") dealDamage(p, activeIntent.value); else e.block += activeIntent.value;
+    
+    let oldTime = e.time;
+    if (e.rooted > 0) { e.rooted--; } else { e.time += activeIntent.time; }
+    
+    triggerTraps(oldTime, e.time);
+    generateEnemyIntent();
+}
+
+function checkTimeline() {
+    updateCombatUI();
+    if (p.health <= 0) { setTimeout(() => { alert("You died."); location.reload(); }, 500); return; }
+    if (e.health <= 0) { setTimeout(() => { alert("You won!"); location.reload(); }, 500); return; }
+    
+    if (p.time <= e.time) { 
+        getElem('turn-indicator').innerText = "Player Turn"; updateCombatUI(); 
+    } else { 
+        getElem('turn-indicator').innerText = "Enemy Action..."; 
+        p.cardsPlayedThisTurn = 0; document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); 
+        setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); 
+    }
+}
+
+function dealDamage(target, amount, ignoreBlock=false) {
+    if(!ignoreBlock && target.block > 0) {
+        if(target.block >= amount) { target.block -= amount; return; }
+        else { amount -= target.block; target.block = 0; }
+    }
+    target.health -= amount;
+}
+
+function playCard(index) {
+    if (p.time > e.time) return; let card = p.hand[index];
+    p.cardsPlayedThisTurn++;
+    
+    // Resolve Time Cost (Anchors or RNG)
+    let timeCost = card.time !== undefined ? card.time : (card.randomTime ? Math.floor(Math.random()*(card.randomTime[1]-card.randomTime[0]+1))+card.randomTime[0] : 1);
+    if (p.anchored > 0 && timeCost > 0) { timeCost = 0; p.anchored--; }
+
+    let dmg = card.damage || 0;
+    if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
+    if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
+    
+    let hits = card.hits || 1;
+    for(let i=0; i<hits; i++) { if (dmg > 0) dealDamage(e, dmg); }
+    
+    if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
+    if (card.block) p.block += card.block; 
+    if (card.draw) drawCards(card.draw);
+    if (card.anchorPlayer) p.anchored += card.anchorPlayer;
+    if (card.rootEnemy) e.rooted += card.rootEnemy;
+    if (card.shiftTimeline) p.inAltTimeline = !p.inAltTimeline;
+    if (card.selfDamage) dealDamage(p, card.selfDamage, true);
+    if (card.delayEnemy) { let old = e.time; e.time += card.delayEnemy; triggerTraps(old, e.time); }
+    if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>1) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
+    
+    p.time += timeCost; p.discardPile.push(card); p.hand.splice(index, 1); drawCards(1); checkTimeline();
+}
+
+function renderCardHTML(card) {
+    let d = document.createElement('div'); d.className = `card`; let desc = [];
+    let tDisp = card.time !== undefined ? card.time : (card.randomTime ? '?' : '1');
+    if(card.damage) desc.push(`Deal <span style="color:var(--color-damage)">${card.damage}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
+    if(card.momentumDamage) desc.push(`Deal <span style="color:var(--color-damage)">+${card.momentumDamage} DMG</span> per card played this turn`);
+    if(card.randomDamage) desc.push(`Deal <span style="color:var(--color-damage)">${card.randomDamage[0]}-${card.randomDamage[1]}</span> DMG`);
+    if(card.trap) desc.push(`Place a <span style="color:var(--color-damage)">${card.trap.damage} DMG</span> Trap at <span style="color:var(--color-time)">+${card.trap.delay}T</span>`);
+    if(card.block) desc.push(`Gain <span style="color:var(--color-block)">${card.block}</span> BLK`);
+    if(card.shiftTimeline) desc.push(`<b>Shift Timelines</b>`);
+    if(card.anchorPlayer) desc.push(`Anchor yourself for ${card.anchorPlayer} turn(s)`);
+    if(card.rootEnemy) desc.push(`Root enemy for ${card.rootEnemy} turn(s)`);
+    if(card.delayEnemy) desc.push(`Push Enemy <span style="color:var(--color-time)">${card.delayEnemy}T</span>`);
+    if(card.draw) desc.push(`Draw ${card.draw} card(s)`);
+    d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
+}
