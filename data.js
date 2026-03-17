@@ -32,9 +32,14 @@ const CLASS_DATA = {
         relics: [{ name: "Pocket Watch", desc: "Cards that cost 3+ Time deal 4 extra damage." }],
         starter: [...Array(5).fill(COMMON.Strike), ...Array(5).fill(COMMON.Defend), { name: "Rewind", time: 0, draw: 1, delayEnemy: -1 }],
         pool: [ 
-            { name: "Time Warp", time: 4, damage: 20, delayEnemy: 2 }, 
-            { name: "Haste", time: 0, block: 4, draw: 2 },
-            { name: "Paradox", time: 3, damage: 15, delayEnemy: -2 }
+// A Slay the Spire style Power that fundamentally breaks the game rules in your favor
+            { name: "Chronostasis", time: 3, isPower: true },
+            
+            // Timeline manipulation skills 
+            { name: "Rubber Band", time: 1, delayEnemy: 3, selfDamage: 5 },
+            { name: "Time Steal", time: 0, damage: 5, delayEnemy: 2 },
+            { name: "Flash Forward", time: -2, damage: 4, selfDamage: 2 }, // Actually moves your marker LEFT into the past!
+            { name: "Stasis Field", time: 2, block: 15, delayEnemy: 1 }
         ]
     },
     Paladin: {
