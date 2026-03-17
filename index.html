@@ -2,67 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spires & Shadows</title>
+    <title>Chrono Spire</title>
     <link rel="stylesheet" href="style.css">
-    <script src="data.js" defer></script>
-    <script src="engine.js" defer></script>
 </head>
 <body>
-
-<div id="screen-map" class="screen active">
-    <div style="text-align:center; margin-bottom:20px;">
-        <h1 style="margin:0;">The Chrono-Path</h1>
-        <div style="max-width: 600px; margin: 10px auto;">
-            <button class="btn" onclick="switchClass('Masochist')">Masochist</button>
-            <button class="btn" onclick="switchClass('Alchemist')">Alchemist</button>
-            <button class="btn" onclick="switchClass('Chronomancer')">Chronomancer</button>
-            <button class="btn" onclick="switchClass('Paladin')">Paladin</button>
-            <button class="btn" onclick="switchClass('Gambler')">Gambler</button>
-        </div>
-        <div class="panel" style="margin-top:15px; display:inline-block;">
-            HP: <span id="map-hp" style="color:var(--color-health); font-weight:bold;"></span> | Deck: <span id="map-deck-size"></span>
-        </div>
+    <div id="screen-start" class="screen active">
+        <h1>Chrono Spire</h1>
+        <select id="class-select">
+            <option value="The Scarred">The Scarred (Traps)</option>
+            <option value="The Frenzied">The Frenzied (Momentum)</option>
+            <option value="The Stoic">The Stoic (Anchors)</option>
+            <option value="The Wanderer">The Wanderer (Phase Shift)</option>
+            <option value="The Gambler">The Gambler (Chaos)</option>
+        </select>
+        <button onclick="initGame()">Enter the Spire</button>
     </div>
-    <div id="map-container"></div>
-</div>
 
-<div id="screen-combat" class="screen">
-    <div id="combat-layout">
-        <div class="stage">
-            <div class="entity panel" id="player-entity">
-                <div id="player-class-name" style="font-weight:bold; font-size:1.2rem; margin-bottom:10px;">Player</div>
-                <div class="bar-container"><div class="bar-fill" id="player-hp-fill"></div><div class="bar-text" id="player-hp-text">80/80</div></div>
-                <div class="stats-row"><span style="color:var(--color-block)">Block: <span id="player-block">0</span></span><button class="btn" onclick="waitTurn()">Wait (1T)</button></div>
-                <div class="relic-tray" id="player-relics"></div>
+    <div id="screen-combat" class="screen">
+        <div id="top-bar">
+            <div>Floor: <span id="floor-number">1</span></div>
+            <div id="turn-indicator">Player Turn</div>
+            <div id="player-class-name">Class</div>
+        </div>
+        
+        <div id="battlefield">
+            <div class="entity" id="player-entity">
+                <h3>Player</h3>
+                <div class="hp-bar"><div class="hp-fill" id="player-hp-fill"></div></div>
+                <div>HP: <span id="player-hp-text"></span> | BLK: <span id="player-block"></span></div>
+                <div id="player-relics"></div>
+                <div id="player-status" style="color:#ffeb3b; font-size: 12px;"></div>
             </div>
-            <div class="entity panel" id="enemy-entity">
-                <div class="intent-box" id="enemy-intent">Intent...</div>
-                <div id="enemy-name" style="font-weight:bold; font-size:1.2rem; margin-bottom:10px; color:var(--color-damage);">Enemy</div>
-                <div class="bar-container"><div class="bar-fill" id="enemy-hp-fill" style="background:var(--color-damage);"></div><div class="bar-text" id="enemy-hp-text">60/60</div></div>
-                <div class="stats-row"><span style="color:var(--color-block)">Block: <span id="enemy-block">0</span></span></div>
+
+            <div class="entity" id="enemy-entity">
+                <h3 id="enemy-name">Enemy</h3>
+                <div id="enemy-intent">Intent: Loading...</div>
+                <div id="alt-intent" style="display:none; color:#cddc39;">Alt Intent: Loading...</div>
+                <div class="hp-bar"><div class="hp-fill" id="enemy-hp-fill"></div></div>
+                <div>HP: <span id="enemy-hp-text"></span> | BLK: <span id="enemy-block"></span></div>
+                <div id="enemy-status" style="color:#ffeb3b; font-size: 12px;"></div>
             </div>
         </div>
-        <div class="timeline-wrapper">
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:bold; color:var(--text-muted);"><span id="turn-indicator">Player Turn</span><span>Time Track -></span></div>
-            <div id="timeline-container"></div>
-        </div>
-        <div class="hand-container" id="hand-container"></div>
+
+        <div id="timeline-container"></div>
+        <div id="hand-container"></div>
     </div>
-</div>
 
-<div id="screen-reward" class="screen">
-    <h1 style="color:var(--color-time);">Victory! Choose a Card.</h1>
-    <div class="grid-container" id="draft-container"></div>
-    <button class="btn" style="margin-top:30px;" onclick="returnToMap()">Skip & Continue</button>
-</div>
-
-<div id="screen-campfire" class="screen">
-    <h1 style="color:var(--color-time);">Campfire</h1>
-    <p>Select a card from your deck to Upgrade.</p>
-    <div class="grid-container" id="campfire-container"></div>
-    <button class="btn" style="margin-top:30px;" onclick="restAtCampfire()">Rest Instead (+20 HP)</button>
-</div>
-
+    <script src="data.js"></script>
+    <script src="engine.js"></script>
 </body>
 </html>
