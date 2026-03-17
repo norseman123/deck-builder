@@ -1,8 +1,9 @@
 let selectedClass = "Masochist";
 let masterDeck = []; let playerRelics = [];
 let currentFloor = 0; 
-let p = { maxHealth:80, health:80, block:0, time:0, drawPile:[], discardPile:[], hand:[] };
-let e = { health:60, maxHealth:60, block:0, time:2, isBoss:false }; 
+// Added 'powers' array to both player and enemy
+let p = { maxHealth:80, health:80, block:0, time:0, drawPile:[], discardPile:[], hand:[], powers:[] };
+let e = { health:60, maxHealth:60, block:0, time:2, isBoss:false, powers:[] };
 
 function getElem(id) { return document.getElementById(id); }
 function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
