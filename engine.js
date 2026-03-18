@@ -126,68 +126,6 @@ function triggerTraps(oldTime, newTime) {
     }
 }
 
-function playCard(index) {
-    // NEW: The enemy has priority if touching or behind you, UNLESS they are rooted!
-    if (p.time >= e.time && e.rooted <= 0) return; 
-    
-    let card = p.hand[index];
-
-    // NEW: If you are touching or past the enemy and play a card, consume 1 Root stack
-    if (p.time >= e.time && e.rooted > 0) {
-        e.rooted--;
-    }
-
-    p.cardsPlayedThisTurn++;
-    
-    // Resolve Time Cost (Anchors or RNG)
-    let timeCost = card.time !== undefined ? card.time : (card.randomTime ? Math.floor(Math.random()*(card.randomTime[1]-card.randomTime[0]+1))+card.randomTime[0] : 1);
-    if (p.anchored > 0 && timeCost > 0) { timeCost = 0; p.anchored--; }
-
-    let dmg = card.damage || 0;
-    if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
-    if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
-    
-    let hits = card.hits || 1;
-    for(let i=0; i<hits; i++) { if (dmg > 0) dealDamage(e, dmg); }
-    
-    if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
-    if (card.block) p.block += card.block; 
-    if (card.draw) drawCards(card.draw);
-    if (card.anchorPlayer) p.anchored += card.anchorPlayer;
-    if (card.rootEnemy) e.rooted += card.rootEnemy;
-    if (card.shiftTimeline) p.inAltTimeline = !p.inAltTimeline;
-    if (card.selfDamage) dealDamage(p, card.selfDamage, true);
-    if (card.delayEnemy) { let old = e.time; e.time += card.delayEnemy; triggerTraps(old, e.time); }
-    if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>1) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
-    
-    p.time += timeCost; p.discardPile.push(card); p.hand.splice(index, 1); drawCards(1); checkTimeline();
-}
-
-function checkTimeline() {
-    updateCombatUI();
-    if (p.health <= 0) { setTimeout(() => { alert("You died."); location.reload(); }, 500); return; }
-    if (e.health <= 0) { setTimeout(() => { alert("You won!"); location.reload(); }, 500); return; }
-    
-    // NEW: "Touching you (p.time == e.time) or after you (p.time > e.time)" means Enemy Turn
-    if (p.time >= e.time) { 
-        
-        // NEW: Stoic can pass the enemy if they are rooted!
-        if (e.rooted > 0) {
-            getElem('turn-indicator').innerText = `Player Turn (Enemy Rooted!)`; 
-            updateCombatUI(); 
-            return; // Let the player continue playing cards past the enemy
-        }
-
-        getElem('turn-indicator').innerText = "Enemy Action..."; 
-        p.cardsPlayedThisTurn = 0; 
-        document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); 
-        setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); 
-    } else { 
-        getElem('turn-indicator').innerText = "Player Turn"; 
-        updateCombatUI(); 
-    }
-}
-
 function executeEnemyAction() {
     let activeIntent = (selectedClass === "The Wanderer" && p.inAltTimeline) ? e.altIntent : e.intent;
     
@@ -201,11 +139,71 @@ function executeEnemyAction() {
     generateEnemyIntent();
 }
 
+function playCard(index) {
+    if (p.time >= e.time && e.rooted <= 0) return; 
+    
+    let card = p.hand[index];
+
+    if (p.time >= e.time && e.rooted > 0) {
+        e.rooted--;
+    }
+
+    p.cardsPlayedThisTurn++;
+    
+    let timeCost = card.time !== undefined ? card.time : (card.randomTime ? Math.floor(Math.random()*(card.randomTime[1]-card.randomTime[0]+1))+card.randomTime[0] : 1);
+    if (p.anchored > 0 && timeCost > 0) { timeCost = 0; p.anchored--; }
+
+    let dmg = card.damage || 0;
+    if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
+    if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
+    
+    // NEW: Wanderer's Timeline Collapse (Deals damage equal to enemy's combined intents)
+    if (card.collapseIntents) {
+        dmg += e.intent.value + (e.altIntent.value || 0);
+    }
+
+    let hits = card.hits || 1;
+    for(let i=0; i<hits; i++) { if (dmg > 0) dealDamage(e, dmg); }
+    
+    // NEW: Stoic's Pull Mechanic
+    if (card.pullEnemy && p.time > e.time) {
+        let old = e.time;
+        e.time = p.time; // Drags them right to your current time
+        triggerTraps(old, e.time); // They trigger traps while being dragged!
+    }
+
+    // NEW: Frenzied's Momentum Knockback
+    if (card.momentumDelay) {
+        let push = card.momentumDelay * (p.cardsPlayedThisTurn - 1);
+        if (push > 0) {
+            let old = e.time; e.time += push; triggerTraps(old, e.time);
+        }
+    }
+
+    if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
+    if (card.block) p.block += card.block; 
+    if (card.draw) drawCards(card.draw);
+    if (card.anchorPlayer) p.anchored += card.anchorPlayer;
+    if (card.rootEnemy) e.rooted += card.rootEnemy;
+    if (card.shiftTimeline) p.inAltTimeline = !p.inAltTimeline;
+    if (card.selfDamage) dealDamage(p, card.selfDamage, true);
+    if (card.delayEnemy) { let old = e.time; e.time += card.delayEnemy; triggerTraps(old, e.time); }
+    if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>1) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
+    
+    p.time += timeCost; p.discardPile.push(card); p.hand.splice(index, 1); drawCards(1); checkTimeline();
+}
+
 function renderCardHTML(card) {
     let d = document.createElement('div'); d.className = `card`; let desc = [];
     let tDisp = card.time !== undefined ? card.time : (card.randomTime ? '?' : '1');
     if(card.damage) desc.push(`Deal <span style="color:var(--color-damage)">${card.damage}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
     if(card.momentumDamage) desc.push(`Deal <span style="color:var(--color-damage)">+${card.momentumDamage} DMG</span> per card played this turn`);
+    
+    // NEW MECHANIC TEXTS
+    if(card.collapseIntents) desc.push(`Deal DMG equal to the Enemy's combined intents`);
+    if(card.pullEnemy) desc.push(`If you are ahead of the Enemy, drag them to your Time`);
+    if(card.momentumDelay) desc.push(`Push Enemy <span style="color:var(--color-time)">+${card.momentumDelay}T</span> per card played this turn`);
+
     if(card.randomDamage) desc.push(`Deal <span style="color:var(--color-damage)">${card.randomDamage[0]}-${card.randomDamage[1]}</span> DMG`);
     if(card.trap) desc.push(`Place a <span style="color:var(--color-damage)">${card.trap.damage} DMG</span> Trap at <span style="color:var(--color-time)">+${card.trap.delay}T</span>`);
     if(card.block) desc.push(`Gain <span style="color:var(--color-block)">${card.block}</span> BLK`);
