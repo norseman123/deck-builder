@@ -112,10 +112,15 @@ function showRelicDraft() {
     });
 }
 
-function startCombat(isBoss) {
+function startCombat(isElite = false, isBoss = false) {
     showScreen('screen-combat');
+    // If it's an elite, boost HP and damage scaling (you can tweak these later!)
     let eData = isBoss ? ENEMIES[2] : ENEMIES[Math.floor(Math.random() * 2)];
-    e.name = eData.name; e.maxHealth = eData.hp; e.health = eData.hp; e.time = 2; e.block = 0; e.isBoss = isBoss; e.rooted = 0;
+    e.name = isElite ? `Elite ${eData.name}` : eData.name; 
+    e.maxHealth = isElite ? Math.floor(eData.hp * 1.5) : eData.hp; 
+    e.health = e.maxHealth; 
+    e.time = 2; e.block = 0; e.isBoss = isBoss; e.isElite = isElite; e.rooted = 0;
+// ... (the rest of your startCombat function stays exactly the same)
     
     p.block = 0; p.time = 0; p.cardsPlayedThisTurn = 0; p.anchored = 0; traps = [];
     p.inAltTimeline = !!playerRelics.find(r => r.name === "Pocket Dimension");
