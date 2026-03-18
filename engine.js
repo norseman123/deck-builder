@@ -22,6 +22,46 @@ function initGame() {
     startCombat(false);
 }
 
+let floor = 1;
+
+function showMap() {
+    showScreen('screen-map');
+    getElem('floor-number').innerText = floor;
+    let choices = getElem('map-choices');
+    choices.innerHTML = '';
+    
+    // Floor 10 is always the Boss
+    if (floor === 10) {
+        let b = document.createElement('button');
+        b.innerText = "BOSS FIGHT"; 
+        b.onclick = () => { floor++; startCombat(false, true); };
+        choices.appendChild(b);
+        return;
+    }
+
+    // Generate 3 random room choices
+    let roomTypes = ["Enemy", "Enemy", "Elite", "Chest"]; 
+    let options = [];
+    while(options.length < 3) {
+        let r = roomTypes[Math.floor(Math.random() * roomTypes.length)];
+        options.push(r);
+    }
+    
+    options.forEach(type => {
+        let btn = document.createElement('button');
+        btn.innerHTML = `<h3>${type}</h3>`;
+        btn.onclick = () => {
+            floor++;
+            if (type === "Enemy") startCombat(false, false);
+            if (type === "Elite") startCombat(true, false);
+            if (type === "Chest") showRelicDraft();
+        };
+        choices.appendChild(btn);
+    });
+}
+
+
+
 function startCombat(isBoss) {
     showScreen('screen-combat');
     let eData = isBoss ? ENEMIES[2] : ENEMIES[Math.floor(Math.random() * 2)];
