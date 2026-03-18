@@ -216,6 +216,45 @@ function triggerTraps(oldTime, newTime) {
     }
 }
 
+function checkTimeline() {
+    updateCombatUI();
+    
+    // DEFEAT CONDITION
+    if (p.health <= 0) { 
+        setTimeout(() => { alert("You died."); location.reload(); }, 500); 
+        return; 
+    }
+    
+    // VICTORY CONDITION (Here is the "victory thing"!)
+    if (e.health <= 0) { 
+        setTimeout(() => { 
+            alert("Victory!"); 
+            // If they beat an Elite or Boss, they get a Relic. Otherwise, back to the map.
+            if (e.isElite || e.isBoss) showRelicDraft(); 
+            else showMap(); 
+        }, 500); 
+        return; 
+    }
+    
+    // TURN LOGIC
+    if (p.time >= e.time) { 
+        if (e.rooted > 0) {
+            getElem('turn-indicator').innerText = `Player Turn (Enemy Rooted!)`; 
+            updateCombatUI(); 
+            return; 
+        }
+
+        getElem('turn-indicator').innerText = "Enemy Action..."; 
+        p.cardsPlayedThisTurn = 0; 
+        document.querySelectorAll('.card').forEach(c => c.classList.add('disabled')); 
+        setTimeout(() => { executeEnemyAction(); checkTimeline(); }, 600); 
+    } else { 
+        getElem('turn-indicator').innerText = "Player Turn"; 
+        updateCombatUI(); 
+    }
+}
+
+
 function executeEnemyAction() {
     let activeIntent = (selectedClass === "The Wanderer" && p.inAltTimeline) ? e.altIntent : e.intent;
     
