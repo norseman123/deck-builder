@@ -64,16 +64,13 @@ const CLASSES = {
 const ENEMIES = [
     { name: "Goblin Scrapper", hp: 40 },
     { name: "Clockwork Knight", hp: 60 },
-    { name: "Time Devourer", hp: 150 }
+    { name: "Time Devourer", hp: 150 },
 ];
 
 const RELICS = [
-    { name: "Loaded Dice", desc: "Adds +2 to the minimum damage of random attacks." },
-    { name: "Rusty Bear Trap", desc: "Start each combat with a 10 DMG trap at +4T." },
-    { name: "Adrenaline Spike", desc: "Start combat with +2 Momentum." },
-    { name: "Heavy Boots", desc: "Start combat Anchored (1). Your first Time-costing card is free." },
-    { name: "Pocket Dimension", desc: "Start combat in the Alt Timeline." },
+    // I removed Heavy Boots, Loaded Dice, etc. from here!
     { name: "Golden Stopwatch", desc: "Draw 1 extra card at the start of combat." },
     { name: "Spiked Pauldrons", desc: "Whenever you take damage, deal 3 damage back to the enemy." },
-    { name: "Vampiric Blade", desc: "Heal 2 HP whenever you defeat an enemy." }
+    { name: "Vampiric Blade", desc: "Heal 2 HP whenever you defeat an enemy." },
+    { name: "no", desc: "nothing" }
 ];
