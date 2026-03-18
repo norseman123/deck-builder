@@ -18,8 +18,9 @@ function initGame() {
     // Give base cards
     for(let i=0; i<3; i++) masterDeck.push(clone(clsData.pool[0])); 
     for(let i=0; i<3; i++) masterDeck.push(clone(clsData.pool[1]));
-    getElem('screen-start').classList.remove('active');
-    startCombat(false);
+    
+    // NEW: We no longer jump straight to combat. We go to the Map!
+    showMap(); 
 }
 
 let floor = 1;
@@ -114,13 +115,13 @@ function showRelicDraft() {
 
 function startCombat(isElite = false, isBoss = false) {
     showScreen('screen-combat');
-    // If it's an elite, boost HP and damage scaling (you can tweak these later!)
+    
+    // NEW: Handle Elite stat scaling
     let eData = isBoss ? ENEMIES[2] : ENEMIES[Math.floor(Math.random() * 2)];
     e.name = isElite ? `Elite ${eData.name}` : eData.name; 
     e.maxHealth = isElite ? Math.floor(eData.hp * 1.5) : eData.hp; 
     e.health = e.maxHealth; 
     e.time = 2; e.block = 0; e.isBoss = isBoss; e.isElite = isElite; e.rooted = 0;
-// ... (the rest of your startCombat function stays exactly the same)
     
     p.block = 0; p.time = 0; p.cardsPlayedThisTurn = 0; p.anchored = 0; traps = [];
     p.inAltTimeline = !!playerRelics.find(r => r.name === "Pocket Dimension");
@@ -134,11 +135,10 @@ function startCombat(isElite = false, isBoss = false) {
     getElem('player-class-name').innerText = selectedClass; getElem('enemy-name').innerText = e.name;
     getElem('player-relics').innerHTML = playerRelics.map(r => `<div class="relic-icon" title="${r.desc}">${r.name}</div>`).join('');
 
-    // FIX: Render the timeline FIRST so the UI doesn't crash when drawing cards!
     renderTimeline(); 
     drawCards(5); 
     generateEnemyIntent(); 
-    checkTimeline();
+    checkTimeline(); // Make sure you pasted this function back in from my previous message!
 }
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); getElem(id).classList.add('active'); }
 
