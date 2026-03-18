@@ -60,7 +60,57 @@ function showMap() {
     });
 }
 
+function showRelicDraft() {
+    showScreen('screen-relic');
+    let choices = getElem('relic-choices');
+    choices.innerHTML = '';
+    
+    // Grab 3 random relics the player doesn't already own
+    let available = RELICS.filter(r => !playerRelics.find(pr => pr.name === r.name))
+                          .sort(() => Math.random() - 0.5).slice(0, 3);
+    
+    if (available.length === 0) {
+        choices.innerHTML = "<p>You have found every relic!</p>";
+        let b = document.createElement('button'); b.innerText = "Continue"; b.onclick = showMap; choices.appendChild(b);
+        return;
+    }
 
+    available.forEach(relic => {
+        let btn = document.createElement('button');
+        btn.innerHTML = `<b>${relic.name}</b><br><br>${relic.desc}`;
+        btn.onclick = () => {
+            playerRelics.push(relic);
+            showMap(); // Send them back to the map after claiming
+        };
+        choices.appendChild(btn);
+    });
+}
+
+function showRelicDraft() {
+    showScreen('screen-relic');
+    let choices = getElem('relic-choices');
+    choices.innerHTML = '';
+    
+    // Grab 3 random relics the player doesn't already own
+    let available = RELICS.filter(r => !playerRelics.find(pr => pr.name === r.name))
+                          .sort(() => Math.random() - 0.5).slice(0, 3);
+    
+    if (available.length === 0) {
+        choices.innerHTML = "<p>You have found every relic!</p>";
+        let b = document.createElement('button'); b.innerText = "Continue"; b.onclick = showMap; choices.appendChild(b);
+        return;
+    }
+
+    available.forEach(relic => {
+        let btn = document.createElement('button');
+        btn.innerHTML = `<b>${relic.name}</b><br><br>${relic.desc}`;
+        btn.onclick = () => {
+            playerRelics.push(relic);
+            showMap(); // Send them back to the map after claiming
+        };
+        choices.appendChild(btn);
+    });
+}
 
 function startCombat(isBoss) {
     showScreen('screen-combat');
