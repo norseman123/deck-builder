@@ -23,6 +23,7 @@
             <div>Floor: <span id="floor-number">1</span></div>
             <div id="turn-indicator">Player Turn</div>
             <div id="player-class-name">Class</div>
+            
         </div>
         
         <div id="battlefield">
@@ -46,6 +47,17 @@
 
         <div id="timeline-container"></div>
         <div id="hand-container"></div>
+    </div>
+
+    <div id="screen-map" class="screen" style="display:none; text-align: center; padding: 50px;">
+        <h2>Choose Your Path (Floor <span id="floor-number"></span>)</h2>
+        <div id="map-choices" style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;"></div>
+    </div>
+
+    <div id="screen-relic" class="screen" style="display:none; text-align: center; padding: 50px;">
+        <h2>Choose a Relic</h2>
+        <p>You may claim one artifact.</p>
+        <div id="relic-choices" style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;"></div>
     </div>
 
     <script src="data.js"></script>
