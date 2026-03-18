@@ -8,6 +8,7 @@ const CLASSES = {
             { name: "Minefield", time: 3, trap: { delay: 3, damage: 25 } },
             { name: "Shove", time: 1, damage: 4, delayEnemy: 2 },
             { name: "Lure", time: 0, block: 8, delayEnemy: -1 }
+            { name: "Tactical Retreat", time: 6, block: 25, draw: 1 },
         ]
     },
     "The Frenzied": {
@@ -30,6 +31,7 @@ const CLASSES = {
             { name: "Shackles", time: 2, damage: 6, rootEnemy: 1 },
             { name: "Heavy Blow", time: 3, damage: 18 },
             { name: "Immovable", time: 2, block: 20, anchorPlayer: 1 }
+            { name: "Chain Grab", time: 1, damage: 8, pullEnemy: true },
         ]
     },
     "The Wanderer": {
@@ -41,6 +43,7 @@ const CLASSES = {
             { name: "Paradox", time: 1, damage: 10, shiftTimeline: true },
             { name: "Ghost Block", time: 1, block: 12, shiftTimeline: true },
             { name: "Cross-Strike", time: 2, damage: 8, hits: 2 }
+            { name: "Reality Crash", time: 2, collapseIntents: true, shiftTimeline: true },
         ]
     },
     "The Gambler": {
