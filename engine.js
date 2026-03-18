@@ -275,6 +275,10 @@ function playCard(index) {
     let dmg = card.damage || 0;
     if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
     if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
+
+// NEW: Greed Mechanic
+    if (card.greedDamage && p.block === 0) {
+        dmg += card.greedDamage;
     
     // NEW: Wanderer's Timeline Collapse (Deals damage equal to enemy's combined intents)
     if (card.collapseIntents) {
