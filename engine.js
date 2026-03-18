@@ -273,6 +273,16 @@ function executeEnemyAction() {
     generateEnemyIntent();
 }
 
+function dealDamage(target, amount, bypassBlock = false) {
+    if (!bypassBlock) {
+        let blockDamage = Math.min(target.block, amount);
+        target.block -= blockDamage;
+        amount -= blockDamage;
+    }
+    target.health -= amount;
+    if (target.health < 0) target.health = 0;
+}
+
 function playCard(index) {
     if (p.time >= e.time && e.rooted <= 0) return; 
     
