@@ -20,6 +20,7 @@ const CLASSES = {
             { name: "Sprint", time: -1, draw: 1, selfDamage: 2 },
             { name: "Combo Finisher", time: 2, damage: 5, momentumDamage: 6 },
             { name: "Blur", time: -2, block: 4, randomDiscard: 1 }
+            { name: "Unleash", time: 1, damage: 5, momentumKnockback: true}
         ]
     },
     "The Stoic": {
@@ -32,6 +33,7 @@ const CLASSES = {
             { name: "Heavy Blow", time: 3, damage: 18 },
             { name: "Immovable", time: 2, block: 20, anchorPlayer: 1 }
             { name: "Chain Grab", time: 1, damage: 8, pullEnemy: true },
+            { name: "Inhuman Suffering", time: 10, damage: 40}
         ]
     },
     "The Wanderer": {
@@ -63,4 +65,15 @@ const ENEMIES = [
     { name: "Goblin Scrapper", hp: 40 },
     { name: "Clockwork Knight", hp: 60 },
     { name: "Time Devourer", hp: 150 }
+];
+
+const RELICS = [
+    { name: "Loaded Dice", desc: "Adds +2 to the minimum damage of random attacks." },
+    { name: "Rusty Bear Trap", desc: "Start each combat with a 10 DMG trap at +4T." },
+    { name: "Adrenaline Spike", desc: "Start combat with +2 Momentum." },
+    { name: "Heavy Boots", desc: "Start combat Anchored (1). Your first Time-costing card is free." },
+    { name: "Pocket Dimension", desc: "Start combat in the Alt Timeline." },
+    { name: "Golden Stopwatch", desc: "Draw 1 extra card at the start of combat." },
+    { name: "Spiked Pauldrons", desc: "Whenever you take damage, deal 3 damage back to the enemy." },
+    { name: "Vampiric Blade", desc: "Heal 2 HP whenever you defeat an enemy." }
 ];
