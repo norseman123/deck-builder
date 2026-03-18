@@ -22,7 +22,7 @@ const CLASSES = {
             { name: "Combo Finisher", time: 2, damage: 5, momentumDamage: 6 },
             { name: "Blur", time: -2, block: 4, randomDiscard: 1 },
             { name: "Unleash", time: 1, damage: 5, momentumDelay: 2},
-            { name: "Shatter", time: 1, damage 3, greedDamage, 10},
+            { name: "Shatter", time: 1, damage: 3, greedDamage: 10},
         ]
     },
     "The Stoic": {
