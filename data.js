@@ -2,7 +2,7 @@ const CLASSES = {
     "The Scarred": {
         relic: { name: "Rusty Bear Trap", desc: "Start combat with a 10 DMG trap at +4 Time." },
         pool: [
-            { name: "Strike", time: 1, damage: 5 },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Defend", time: 1, block: 5 },
             { name: "Tripwire", time: 1, trap: { delay: 2, damage: 12 } },
             { name: "Minefield", time: 3, trap: { delay: 3, damage: 25 } },
@@ -35,7 +35,7 @@ const CLASSES = {
             { name: "Heavy Blow", time: 3, damage: 18 },
             { name: "Immovable", time: 2, block: 20, anchorPlayer: 1 },
             { name: "Chain Grab", time: 1, damage: 8, pullEnemy: true },
-            { name: "Inhuman Suffering", time: 10, damage: 40},
+            { name: "Inhuman Suffering", time: 10, damage: 40, upgrade: {damage: 60} },
         ]
     },
     "The Wanderer": {
