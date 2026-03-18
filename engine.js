@@ -27,8 +27,9 @@ let floor = 1;
 
 function showMap() {
     showScreen('screen-map');
-    getElem('floor-number').innerText = floor;
+    getElem('map-floor-number').innerText = floor; // <-- Updated this line!
     let choices = getElem('map-choices');
+//... rest of the function stays the same
     choices.innerHTML = '';
     
     // Floor 10 is always the Boss
