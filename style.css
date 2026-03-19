@@ -25,3 +25,50 @@ body.alt-timeline { filter: hue-rotate(180deg) contrast(1.2); }
 .card-title { font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #555; padding-bottom: 5px; text-align: center; }
 .card-desc { font-size: 13px; color: #ccc; }
 .relic-icon { display: inline-block; padding: 3px 6px; background: gold; color: black; border-radius: 4px; font-size: 12px; margin-right: 5px; cursor: help; }
+#reward-screen {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#reward-screen.hidden {
+    display: none !important;
+}
+
+.reward-content {
+    text-align: center;
+    color: white;
+}
+
+#reward-cards-container {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0;
+    justify-content: center;
+}
+
+/* Make the reward cards look clickable and cool */
+#reward-cards-container .card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#reward-cards-container .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 0 15px var(--color-time);
+}
+
+.skip-btn {
+    padding: 10px 20px;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.skip-btn:hover { background: #666; }
