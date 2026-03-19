@@ -300,6 +300,11 @@ function playCard(index) {
     if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
     if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
 
+// NEW: Strip mechanics trigger HERE! 
+    // This guarantees you lose your block before Greed checks if your block is 0!
+    if (card.strip) p.block = 0;
+    if (card.enemyStrip) e.block = 0;
+    
     if (card.greedDamage && p.block === 0) {
         dmg += card.greedDamage;
     }
