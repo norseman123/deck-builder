@@ -14,12 +14,10 @@ function initGame() {
     selectedClass = getElem('class-select').value;
     let clsData = CLASSES[selectedClass];
     playerRelics.push(clsData.relic);
-    masterDeck = clone(clsData.pool);
-    // Give base cards
-    for(let i=0; i<3; i++) masterDeck.push(clone(clsData.pool[0])); 
-    for(let i=0; i<3; i++) masterDeck.push(clone(clsData.pool[1]));
     
-    // NEW: We no longer jump straight to combat. We go to the Map!
+    // FIX: Just copy the starter deck! No need for manual pushes anymore.
+    masterDeck = clone(clsData.starterDeck); 
+    
     showMap(); 
 }
 
