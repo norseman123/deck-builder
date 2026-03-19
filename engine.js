@@ -1,6 +1,6 @@
 let selectedClass = "";
 let masterDeck = []; let playerRelics = [];
-let currentFloor = 1; 
+let floor = 1;
 
 // New State Variables
 let p = { maxHealth: 80, health: 80, block: 0, time: 0, drawPile: [], discardPile: [], hand: [], cardsPlayedThisTurn: 0, anchored: 0, inAltTimeline: false };
@@ -23,7 +23,7 @@ function initGame() {
     showMap(); 
 }
 
-let floor = 1;
+
 
 function showMap() {
     showScreen('screen-map');
