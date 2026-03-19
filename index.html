@@ -63,6 +63,14 @@
         <p>Select a card from your deck to permanently upgrade.</p>
         <div id="upgrade-choices" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-top: 30px;"></div>
     </div>
+    <div id="reward-screen" class="hidden">
+    <div class="reward-content">
+        <h2>Victory!</h2>
+        <p>Choose a card to add to your deck:</p>
+        <div id="reward-cards-container" class="cards-container"></div>
+        <button onclick="skipReward()" class="skip-btn">Skip Reward</button>
+    </div>
+</div>
 
     <script src="data.js"></script>
     <script src="engine.js"></script>
