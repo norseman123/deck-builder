@@ -72,8 +72,11 @@ const CLASSES = {
             { name: "Chain Grab", time: 1, damage: 8, pullEnemy: true },
             { name: "Inhuman Suffering", time: 10, damage: 40, upgrade: {damage: 60} },
             { name: "Broken Hearted", time:1, damage: 4, greedDelay: 5},
-            { name: "In the Name of Greed", time:0, greedDelay: 3, greedDamage: 10, selfDamage: 2}
-            { name: "Pain Will Make it Better", time:0, strip: true, upgrade: {enemyStrip: true} }
+            { name: "In the Name of Greed", time:0, greedDelay: 3, greedDamage: 10, selfDamage: 2},
+            { name: "Pain Will Make it Better", time:0, strip: true, upgrade: {enemyStrip: true} },
+            { name: "Repent", time:1, damage: 4, repentDamage: 8},
+            { name: "Shun", time: 0, repentDelay: 4},
+            { name: "Shame", time: 2, enemyStrip: true, upgrade: {damage: 8} },
         ]
     },
     "The Wanderer": {
