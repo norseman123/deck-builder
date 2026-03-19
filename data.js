@@ -6,8 +6,13 @@ const CLASSES = {
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
-            { name: "Defend", time: 1, block: 5 },
-            { name: "Defend", time: 1, block: 5 }
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
         ],
         // NEW: Strike and Defend are removed from here. These are ONLY for post-combat rewards!
         pool: [
@@ -26,8 +31,13 @@ const CLASSES = {
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
-            { name: "Defend", time: 1, block: 5 },
-            { name: "Defend", time: 1, block: 5 }
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
         ],
             
         pool: [
@@ -41,9 +51,20 @@ const CLASSES = {
     },
     "The Stoic": {
         relic: { name: "Heavy Boots", desc: "Your first card each combat costs 0 Time." },
+        starterDeck: [
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+        ],
+            
         pool: [
-            { name: "Strike", time: 1, damage: 5 },
-            { name: "Defend", time: 1, block: 5 },
             { name: "Stand Ground", time: 1, block: 10, anchorPlayer: 2 },
             { name: "Shackles", time: 2, damage: 6, rootEnemy: 1 },
             { name: "Heavy Blow", time: 3, damage: 18 },
@@ -56,9 +77,20 @@ const CLASSES = {
     },
     "The Wanderer": {
         relic: { name: "Pocket Dimension", desc: "Start combat in the Alternate Timeline." },
+        starterDeck: [
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+        ],
+            
         pool: [
-            { name: "Strike", time: 1, damage: 5 },
-            { name: "Defend", time: 1, block: 5 },
             { name: "Phase Shift", time: 0, shiftTimeline: true, draw: 1 },
             { name: "Paradox", time: 1, damage: 10, shiftTimeline: true },
             { name: "Ghost Block", time: 1, block: 12, shiftTimeline: true },
