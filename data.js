@@ -73,6 +73,7 @@ const CLASSES = {
             { name: "Inhuman Suffering", time: 10, damage: 40, upgrade: {damage: 60} },
             { name: "Broken Hearted", time:1, damage: 4, greedDelay: 5},
             { name: "In the Name of Greed", time:0, greedDelay: 3, greedDamage: 10, selfDamage: 2}
+            { name: "Pain Will Make it Better", time:0, strip: true}
         ]
     },
     "The Wanderer": {
