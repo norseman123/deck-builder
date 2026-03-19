@@ -222,18 +222,6 @@ function checkTimeline() {
         return; 
     }
     
-    // VICTORY CONDITION
-    if (e.health <= 0) { 
-        setTimeout(() => { 
-            alert("Victory!"); 
-            floor++; // Advance the floor!
-            // If they beat an Elite or Boss, they get a Relic. Otherwise, back to the map.
-            if (e.isElite || e.isBoss) showRelicDraft(); 
-            else showMap(); 
-        }, 500); 
-        return; 
-    }
-    
     // TURN LOGIC
     if (p.time >= e.time) { 
         if (e.rooted > 0) {
