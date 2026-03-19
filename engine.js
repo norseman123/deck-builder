@@ -353,8 +353,8 @@ function renderCardHTML(card) {
     if(card.draw) desc.push(`Draw ${card.draw} card(s)`);
     if(card.strip) desc.push(`Lose all BLK`);
     if(card.enemyStrip) desc.push(`Shatter all Enemy BLK`);
-    if(card.repentDamage) desc.push(`<b>Greed:</b> If enemy has 0 BLK, deal <span style="color:var(--color-damage)">+${card.repentDamage} DMG</span>`);
-    if(card.repentDelay) desc.push(`<b>Greed:</b> If enemy has 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.repentDelay}T</span>`);
+    if(card.repentDamage) desc.push(`<b>Repent:</b> If enemy has 0 BLK, deal <span style="color:var(--color-damage)">+${card.repentDamage} DMG</span>`);
+    if(card.repentDelay) desc.push(`<b>Repent:</b> If enemy has 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.repentDelay}T</span>`);
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
 
