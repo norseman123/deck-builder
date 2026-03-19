@@ -1,16 +1,23 @@
 const CLASSES = {
-    "The Scarred": {
+"The Scarred": {
         relic: { name: "Rusty Bear Trap", desc: "Start combat with a 10 DMG trap at +4 Time." },
-        pool: [
+        // NEW: This is what you actually take into Combat 1
+        starterDeck: [
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Defend", time: 1, block: 5 },
+            { name: "Defend", time: 1, block: 5 }
+        ],
+        // NEW: Strike and Defend are removed from here. These are ONLY for post-combat rewards!
+        pool: [
             { name: "Tripwire", time: 1, trap: { delay: 2, damage: 12 } },
             { name: "Minefield", time: 3, trap: { delay: 3, damage: 25 } },
             { name: "Shove", time: 1, damage: 4, delayEnemy: 2 },
             { name: "Lure", time: 0, block: 8, delayEnemy: -1 },
-            { name: "Tactical Retreat", time: 3, block: 25, draw: 1, enemyDelay: 6 },
+            { name: "Tactical Retreat", time: 6, block: 25, draw: 1 },
             { name: "Broken Heart", time: 2, damage: 6, greedDamage: 14},
-            { name: "Expell", time: 3, damage:3, delayEnemy: 5},
+            { name: "Expell", time: 3, damage: 3, delayEnemy: 5},
         ]
     },
     "The Frenzied": {
