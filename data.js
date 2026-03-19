@@ -10,7 +10,7 @@ const CLASSES = {
             { name: "Lure", time: 0, block: 8, delayEnemy: -1 },
             { name: "Tactical Retreat", time: 6, block: 25, draw: 1 },
             { name: "Broken Heart", time: 2, damage: 6, greedDamage: 14},
-            { name: "Expell", time: 3, damage:3, delayEnemy: 5}
+            { name: "Expell", time: 3, damage:3, delayEnemy: 5},
         ]
     },
     "The Frenzied": {
@@ -37,6 +37,7 @@ const CLASSES = {
             { name: "Immovable", time: 2, block: 20, anchorPlayer: 1 },
             { name: "Chain Grab", time: 1, damage: 8, pullEnemy: true },
             { name: "Inhuman Suffering", time: 10, damage: 40, upgrade: {damage: 60} },
+            { name: "Broken Hearted", time:1, damage 4, greedDelay: 5},
         ]
     },
     "The Wanderer": {
