@@ -299,8 +299,11 @@ function playCard(index) {
         dmg += card.greedDamage;
     }
 
-    if(card.greedDelay && p.block ===0) {
-        enemyDelay += card.greedDelay;
+// NEW: Greed Delay
+    if (card.greedDelay && p.block === 0) {
+        let old = e.time; 
+        e.time += card.greedDelay; 
+        triggerTraps(old, e.time); // Make sure they hit traps if they get shoved!
     }
     
     // NEW: Wanderer's Timeline Collapse
