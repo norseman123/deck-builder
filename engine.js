@@ -354,11 +354,8 @@ function playCard(index) {
         if (push > 0) {
             let old = e.time; e.time += push; triggerTraps(old, e.time);
         }
-    }
-
-    
+    }   
 }
-
     if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
     if (card.block) p.block += card.block; 
     if (card.draw) drawCards(card.draw);
