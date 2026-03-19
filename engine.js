@@ -279,7 +279,8 @@ function dealDamage(target, amount, bypassBlock = false) {
 function playCard(index) {
     if (p.time >= e.time && e.rooted <= 0) return; 
     
-    let card = p.hand[index];
+    // BUG FIX 1: Remove the played card from the hand IMMEDIATELY to prevent index shifting!
+    let card = p.hand.splice(index, 1)[0];
 
     if (p.time >= e.time && e.rooted > 0) {
         e.rooted--;
@@ -294,19 +295,16 @@ function playCard(index) {
     if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
     if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
 
-    // NEW: Greed Mechanic (The missing bracket was here!)
     if (card.greedDamage && p.block === 0) {
         dmg += card.greedDamage;
     }
 
-// NEW: Greed Delay
     if (card.greedDelay && p.block === 0) {
         let old = e.time; 
         e.time += card.greedDelay; 
-        triggerTraps(old, e.time); // Make sure they hit traps if they get shoved!
+        triggerTraps(old, e.time);
     }
     
-    // NEW: Wanderer's Timeline Collapse
     if (card.collapseIntents) {
         dmg += e.intent.value + (e.altIntent.value || 0);
     }
@@ -314,14 +312,13 @@ function playCard(index) {
     let hits = card.hits || 1;
     for(let i=0; i<hits; i++) { if (dmg > 0) dealDamage(e, dmg); }
     
-    // NEW: Stoic's Pull Mechanic
-    if (card.pullEnemy && p.time > e.time) {
+    // BUG FIX 2: Check if the ENEMY is ahead of you, not the other way around
+    if (card.pullEnemy && e.time > p.time) {
         let old = e.time;
         e.time = p.time; 
         triggerTraps(old, e.time); 
     }
 
-    // NEW: Frenzied's Momentum Knockback
     if (card.momentumDelay) {
         let push = card.momentumDelay * (p.cardsPlayedThisTurn - 1);
         if (push > 0) {
@@ -337,9 +334,12 @@ function playCard(index) {
     if (card.shiftTimeline) p.inAltTimeline = !p.inAltTimeline;
     if (card.selfDamage) dealDamage(p, card.selfDamage, true);
     if (card.delayEnemy) { let old = e.time; e.time += card.delayEnemy; triggerTraps(old, e.time); }
-    if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>1) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
     
-    p.time += timeCost; p.discardPile.push(card); p.hand.splice(index, 1); drawCards(1); checkTimeline();
+    // Random discard works safely now because the played card is already gone
+    if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>0) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
+    
+    // Removed the old splice from down here!
+    p.time += timeCost; p.discardPile.push(card); drawCards(1); checkTimeline();
 }
 
 function renderCardHTML(card) {
