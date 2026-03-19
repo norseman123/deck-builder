@@ -22,9 +22,15 @@ const CLASSES = {
     },
     "The Frenzied": {
         relic: { name: "Adrenaline Spike", desc: "Start combat with +2 Momentum." },
-        pool: [
-            { name: "Strike", time: 1, damage: 5 },
+        starterDeck: [
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
             { name: "Defend", time: 1, block: 5 },
+            { name: "Defend", time: 1, block: 5 }
+        ],
+            
+        pool: [
             { name: "Flurry", time: 1, damage: 2, momentumDamage: 4 },
             { name: "Sprint", time: -1, draw: 1, selfDamage: 2 },
             { name: "Combo Finisher", time: 2, damage: 5, momentumDamage: 6 },
