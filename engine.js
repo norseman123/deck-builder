@@ -254,10 +254,10 @@ function dealDamage(target, amount, bypassBlock = false) {
 function playCard(index) {
     let card = p.hand.splice(index, 1)[0];
 
-    if (card.pullEnemy && p.time > e.time) {
+    if (card.pullEnemy && p.time < e.time) {
         let old = e.time;
         e.time = p.time; 
-        e.time++;
+        e.time--;
         triggerTraps(old, e.time); 
     }
     
