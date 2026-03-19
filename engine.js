@@ -344,6 +344,7 @@ function playCard(index) {
         if (push > 0) {
             let old = e.time; e.time += push; triggerTraps(old, e.time);
         }
+    }
 
         // THE INTERCEPT:
     if (target === e && target.hp <= 0) {
@@ -354,7 +355,8 @@ function playCard(index) {
         setTimeout(() => {
             showRewardScreen();
         }, 500); 
-    }
+
+    
 }
     }
 
