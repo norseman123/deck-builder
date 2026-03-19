@@ -287,10 +287,10 @@ function dealDamage(target, amount, bypassBlock = false) {
 }
 
 function playCard(index) {
-    // 1. DEFINE CARD FIRST so the browser knows what we are talking about
+    // 1. DEFINE CARD FIRST so the browser knows what it is!
     let card = p.hand.splice(index, 1)[0];
 
-    // Now we can safely check card properties!
+    // Now it is safe to check card properties
     if (card.pullEnemy && p.time > e.time) {
         let old = e.time;
         e.time = p.time; 
@@ -334,7 +334,7 @@ function playCard(index) {
         if (push > 0) { let old = e.time; e.time += push; triggerTraps(old, e.time); }
     }
 
-    // The rogue brackets were right here! They are gone now.
+    // Rogue brackets were removed from right here!
 
     if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
     if (card.block) p.block += card.block; 
@@ -349,6 +349,7 @@ function playCard(index) {
     
     p.time += timeCost; p.discardPile.push(card); drawCards(1); checkTimeline();
 }
+
 function renderCardHTML(card) {
     let d = document.createElement('div'); d.className = `card`; let desc = [];
     let tDisp = card.time !== undefined ? card.time : (card.randomTime ? '?' : '1');
