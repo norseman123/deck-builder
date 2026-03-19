@@ -277,7 +277,12 @@ function dealDamage(target, amount, bypassBlock = false) {
 }
 
 function playCard(index) {
-    if (p.time >= e.time && e.rooted <= 0) return; 
+    // Reverted back to YOUR original, brilliant logic!
+    if (card.pullEnemy && p.time > e.time) {
+        let old = e.time;
+        e.time = p.time; 
+        triggerTraps(old, e.time); 
+    }
     
     // BUG FIX 1: Remove the played card from the hand IMMEDIATELY to prevent index shifting!
     let card = p.hand.splice(index, 1)[0];
