@@ -101,9 +101,19 @@ const CLASSES = {
     },
     "The Gambler": {
         relic: { name: "Loaded Dice", desc: "Minimum random damage increased by 2." },
+                    starterDeck: [
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
+        ],
         pool: [
-            { name: "Strike", time: 1, damage: 5 },
-            { name: "Defend", time: 1, block: 5 },
             { name: "Roll the Bones", randomTime: [-1, 3], damage: 15 },
             { name: "Jackpot", time: 2, randomDamage: [5, 30] },
             { name: "Sleight of Hand", time: 0, draw: 2, randomDiscard: 1 },
