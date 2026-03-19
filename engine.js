@@ -287,16 +287,16 @@ function dealDamage(target, amount, bypassBlock = false) {
 }
 
 function playCard(index) {
-    // Reverted back to YOUR original, brilliant logic!
+    // 1. DEFINE CARD FIRST so the browser knows what we are talking about
+    let card = p.hand.splice(index, 1)[0];
+
+    // Now we can safely check card properties!
     if (card.pullEnemy && p.time > e.time) {
         let old = e.time;
         e.time = p.time; 
         triggerTraps(old, e.time); 
     }
     
-    // BUG FIX 1: Remove the played card from the hand IMMEDIATELY to prevent index shifting!
-    let card = p.hand.splice(index, 1)[0];
-
     if (p.time >= e.time && e.rooted > 0) {
         e.rooted--;
     }
@@ -310,52 +310,32 @@ function playCard(index) {
     if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
     if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
 
-// NEW: Strip mechanics trigger HERE! 
-    // This guarantees you lose your block before Greed checks if your block is 0!
+    // Strip mechanics
     if (card.strip) p.block = 0;
     if (card.enemyStrip) e.block = 0;
     
-    if (card.greedDamage && p.block === 0) {
-        dmg += card.greedDamage;
-    }
+    if (card.greedDamage && p.block === 0) dmg += card.greedDamage;
+    if (card.greedDelay && p.block === 0) { let old = e.time; e.time += card.greedDelay; triggerTraps(old, e.time); }
 
-    if (card.greedDelay && p.block === 0) {
-        let old = e.time; 
-        e.time += card.greedDelay; 
-        triggerTraps(old, e.time);
-    }
-
-    if (card.repentDamage && e.block === 0) {
-        dmg += card.repentDamage;
-    }
-
-    if (card.repentDelay && e.block === 0) {
-        let old = e.time; 
-        e.time += card.repentDelay; 
-        triggerTraps(old, e.time);
-    }
+    if (card.repentDamage && e.block === 0) dmg += card.repentDamage;
+    if (card.repentDelay && e.block === 0) { let old = e.time; e.time += card.repentDelay; triggerTraps(old, e.time); }
     
-    if (card.collapseIntents) {
-        dmg += e.intent.value + (e.altIntent.value || 0);
-    }
+    if (card.collapseIntents) dmg += e.intent.value + (e.altIntent.value || 0);
 
     let hits = card.hits || 1;
     for(let i=0; i<hits; i++) { if (dmg > 0) dealDamage(e, dmg); }
     
-    // BUG FIX 2: Check if the ENEMY is ahead of you, not the other way around
     if (card.pullEnemy && e.time > p.time) {
-        let old = e.time;
-        e.time = p.time; 
-        triggerTraps(old, e.time); 
+        let old = e.time; e.time = p.time; triggerTraps(old, e.time); 
     }
 
     if (card.momentumDelay) {
         let push = card.momentumDelay * (p.cardsPlayedThisTurn - 1);
-        if (push > 0) {
-            let old = e.time; e.time += push; triggerTraps(old, e.time);
-        }
-    }   
-}
+        if (push > 0) { let old = e.time; e.time += push; triggerTraps(old, e.time); }
+    }
+
+    // The rogue brackets were right here! They are gone now.
+
     if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
     if (card.block) p.block += card.block; 
     if (card.draw) drawCards(card.draw);
@@ -365,13 +345,10 @@ function playCard(index) {
     if (card.selfDamage) dealDamage(p, card.selfDamage, true);
     if (card.delayEnemy) { let old = e.time; e.time += card.delayEnemy; triggerTraps(old, e.time); }
     
-    // Random discard works safely now because the played card is already gone
     if (card.randomDiscard) { for(let i=0; i<card.randomDiscard; i++) if(p.hand.length>0) p.discardPile.push(p.hand.splice(Math.floor(Math.random()*p.hand.length), 1)[0]); }
     
-    // Removed the old splice from down here!
     p.time += timeCost; p.discardPile.push(card); drawCards(1); checkTimeline();
 }
-
 function renderCardHTML(card) {
     let d = document.createElement('div'); d.className = `card`; let desc = [];
     let tDisp = card.time !== undefined ? card.time : (card.randomTime ? '?' : '1');
