@@ -442,7 +442,7 @@ function applyUpgrade(deckIndex) {
 }
 
 function showRewardScreen() {
-    let pool = CLASSES[selectedClass].starterDeck;
+    let pool = CLASSES[selectedClass].pool;
     let choices = [];
     
     // Copy the pool so we don't accidentally delete the master list
@@ -465,7 +465,7 @@ function showRewardScreen() {
         
         cardEl.onclick = () => {
             // 1. Add to the MASTER deck (not the temporary combat deck)
-            p.deck.push(card); 
+            masterDeck.push(card); 
             // 2. Finish the combat sequence
             closeRewardScreen();
         };
@@ -483,6 +483,7 @@ function skipReward() {
 
 function closeRewardScreen() {
     document.getElementById('reward-screen').classList.add('hidden');
-    // CALL YOUR MAP FUNCTION HERE! (e.g., returnToMap() or advanceFloor())
-    console.log("Returning to Map...");
+    floor++;
+    showMap();
+
 }
