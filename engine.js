@@ -349,8 +349,11 @@ function renderCardHTML(card) {
     if(card.momentumDamage) desc.push(`Deal <span style="color:var(--color-damage)">+${card.momentumDamage} DMG</span> per card played this turn`);
     
     if(card.greedDamage) desc.push(`<b>Greed:</b> If you have 0 BLK, deal <span style="color:var(--color-damage)">+${card.greedDamage} DMG</span>`);
+    // NEW: Added the Greed Delay text so you can see it!
+    if(card.greedDelay) desc.push(`<b>Greed:</b> If you have 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.greedDelay}T</span>`);
+    
     if(card.collapseIntents) desc.push(`Deal DMG equal to the Enemy's combined intents`);
-    if(card.pullEnemy) desc.push(`If you are ahead of the Enemy, drag them to your Time`);
+    if(card.pullEnemy) desc.push(`If the Enemy is ahead, drag them to your Time`);
     if(card.momentumDelay) desc.push(`Push Enemy <span style="color:var(--color-time)">+${card.momentumDelay}T</span> per card played this turn`);
 
     if(card.randomDamage) desc.push(`Deal <span style="color:var(--color-damage)">${card.randomDamage[0]}-${card.randomDamage[1]}</span> DMG`);
@@ -363,7 +366,6 @@ function renderCardHTML(card) {
     if(card.draw) desc.push(`Draw ${card.draw} card(s)`);
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
-
 function showUpgradeScreen() {
     showScreen('screen-upgrade');
     let container = getElem('upgrade-choices');
