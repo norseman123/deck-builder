@@ -23,8 +23,6 @@ function initGame() {
     showMap(); 
 }
 
-
-
 function showMap() {
     showScreen('screen-map');
     getElem('map-floor-number').innerText = floor;
@@ -46,7 +44,6 @@ function showMap() {
         options = ['Boss']; // The climax!
     } else {
         // Standard randomized floors (Floors 3, 6, 7, 8)
-        // You can still use a little RNG here if you want to mix it up
         let rand = Math.random();
         if (rand < 0.6) options = ['Enemy', 'Enemy'];
         else if (rand < 0.9) options = ['Enemy', 'Campfire'];
@@ -56,12 +53,11 @@ function showMap() {
     // Render the actual buttons based on the array we just built
     options.forEach(type => {
         let btn = document.createElement('button');
-        btn.style = "padding: 15px 30px; font-size: 18px; cursor: pointer;"; // Feel free to move this to your CSS!
+        btn.style = "padding: 15px 30px; font-size: 18px; cursor: pointer;"; 
         
         if (type === 'Enemy') {
             btn.innerText = "⚔️ Combat";
             btn.onclick = () => {
-                // Assuming startCombat handles enemy selection and screen swapping!
                 startCombat(); 
             };
         } else if (type === 'Chest') {
@@ -75,14 +71,14 @@ function showMap() {
             btn.style.backgroundColor = "darkred";
             btn.style.color = "white";
             btn.onclick = () => {
-                // You'll need to make a specific Boss function later!
-                startCombat(true); 
+                startCombat(true, true); 
             };
         }
         
         container.appendChild(btn);
     });
 }
+
 function showRelicDraft() {
     showScreen('screen-relic');
     let choices = getElem('relic-choices');
@@ -94,7 +90,7 @@ function showRelicDraft() {
     
     if (available.length === 0) {
         choices.innerHTML = "<p>You have found every relic!</p>";
-        let b = document.createElement('button'); b.innerText = "Continue"; b.onclick = showMap; choices.appendChild(b);
+        let b = document.createElement('button'); b.innerText = "Continue"; b.onclick = () => { floor++; showMap(); }; choices.appendChild(b);
         return;
     }
 
@@ -103,6 +99,7 @@ function showRelicDraft() {
         btn.innerHTML = `<b>${relic.name}</b><br><br>${relic.desc}`;
         btn.onclick = () => {
             playerRelics.push(relic);
+            floor++; // Advance the floor!
             showMap(); // Send them back to the map after claiming
         };
         choices.appendChild(btn);
@@ -134,8 +131,9 @@ function startCombat(isElite = false, isBoss = false) {
     renderTimeline(); 
     drawCards(5); 
     generateEnemyIntent(); 
-    checkTimeline(); // Make sure you pasted this function back in from my previous message!
+    checkTimeline(); 
 }
+
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); getElem(id).classList.add('active'); }
 
 function drawCards(amount) {
@@ -226,10 +224,11 @@ function checkTimeline() {
         return; 
     }
     
-    // VICTORY CONDITION (Here is the "victory thing"!)
+    // VICTORY CONDITION
     if (e.health <= 0) { 
         setTimeout(() => { 
             alert("Victory!"); 
+            floor++; // Advance the floor!
             // If they beat an Elite or Boss, they get a Relic. Otherwise, back to the map.
             if (e.isElite || e.isBoss) showRelicDraft(); 
             else showMap(); 
@@ -255,14 +254,12 @@ function checkTimeline() {
     }
 }
 
-
 function executeEnemyAction() {
     let activeIntent = (selectedClass === "The Wanderer" && p.inAltTimeline) ? e.altIntent : e.intent;
     
     if (activeIntent.type === "attack") dealDamage(p, activeIntent.value); else e.block += activeIntent.value;
     
     let oldTime = e.time;
-    // Root logic was removed from here so the enemy isn't permanently stuck
     e.time += activeIntent.time; 
     
     triggerTraps(oldTime, e.time);
@@ -297,11 +294,12 @@ function playCard(index) {
     if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
     if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
 
-// NEW: Greed Mechanic
+    // NEW: Greed Mechanic (The missing bracket was here!)
     if (card.greedDamage && p.block === 0) {
         dmg += card.greedDamage;
+    }
     
-    // NEW: Wanderer's Timeline Collapse (Deals damage equal to enemy's combined intents)
+    // NEW: Wanderer's Timeline Collapse
     if (card.collapseIntents) {
         dmg += e.intent.value + (e.altIntent.value || 0);
     }
@@ -312,8 +310,8 @@ function playCard(index) {
     // NEW: Stoic's Pull Mechanic
     if (card.pullEnemy && p.time > e.time) {
         let old = e.time;
-        e.time = p.time; // Drags them right to your current time
-        triggerTraps(old, e.time); // They trigger traps while being dragged!
+        e.time = p.time; 
+        triggerTraps(old, e.time); 
     }
 
     // NEW: Frenzied's Momentum Knockback
@@ -343,7 +341,7 @@ function renderCardHTML(card) {
     if(card.damage) desc.push(`Deal <span style="color:var(--color-damage)">${card.damage}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
     if(card.momentumDamage) desc.push(`Deal <span style="color:var(--color-damage)">+${card.momentumDamage} DMG</span> per card played this turn`);
     
-    // NEW MECHANIC TEXTS
+    if(card.greedDamage) desc.push(`<b>Greed:</b> If you have 0 BLK, deal <span style="color:var(--color-damage)">+${card.greedDamage} DMG</span>`);
     if(card.collapseIntents) desc.push(`Deal DMG equal to the Enemy's combined intents`);
     if(card.pullEnemy) desc.push(`If you are ahead of the Enemy, drag them to your Time`);
     if(card.momentumDelay) desc.push(`Push Enemy <span style="color:var(--color-time)">+${card.momentumDelay}T</span> per card played this turn`);
@@ -357,4 +355,39 @@ function renderCardHTML(card) {
     if(card.delayEnemy) desc.push(`Push Enemy <span style="color:var(--color-time)">${card.delayEnemy}T</span>`);
     if(card.draw) desc.push(`Draw ${card.draw} card(s)`);
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
+}
+
+function showUpgradeScreen() {
+    showScreen('screen-upgrade');
+    let container = getElem('upgrade-choices');
+    container.innerHTML = '';
+
+    masterDeck.forEach((card, index) => {
+        if (card.upgrade && !card.upgraded) {
+            let cardElem = document.createElement('div');
+            cardElem.className = 'card';
+            cardElem.innerHTML = renderCardHTML(card); 
+            
+            cardElem.onclick = () => {
+                applyUpgrade(index);
+            };
+            container.appendChild(cardElem);
+        }
+    });
+
+    let skipBtn = document.createElement('button');
+    skipBtn.innerText = "Skip Campfire";
+    skipBtn.style.marginTop = "30px";
+    skipBtn.onclick = () => { floor++; showMap(); };
+    container.appendChild(skipBtn);
+}
+
+function applyUpgrade(deckIndex) {
+    let card = masterDeck[deckIndex];
+    Object.assign(card, card.upgrade); 
+    card.name = card.name + "+";
+    card.upgraded = true;
+    
+    floor++; // Advance the floor!
+    showMap();
 }
