@@ -396,6 +396,12 @@ function renderCardHTML(card) {
     if(card.rootEnemy) desc.push(`Root enemy for ${card.rootEnemy} turn(s)`);
     if(card.delayEnemy) desc.push(`Push Enemy <span style="color:var(--color-time)">${card.delayEnemy}T</span>`);
     if(card.draw) desc.push(`Draw ${card.draw} card(s)`);
+    // NEW: Strip visuals! Feel free to tweak the wording to fit your game's vibe.
+    if(card.strip) desc.push(`Lose all BLK`);
+    if(card.enemyStrip) desc.push(`Shatter all Enemy BLK`);
+    if(card.repentDamage) desc.push(`<b>Greed:</b> If enemy has 0 BLK, deal <span style="color:var(--color-damage)">+${card.repentDamage} DMG</span>`);
+    // NEW: Added the Greed Delay text so you can see it!
+    if(card.repentDelay) desc.push(`<b>Greed:</b> If enemy has 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.repentDelay}T</span>`);
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
 function showUpgradeScreen() {
