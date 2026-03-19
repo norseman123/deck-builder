@@ -257,6 +257,7 @@ function playCard(index) {
     if (card.pullEnemy && p.time > e.time) {
         let old = e.time;
         e.time = p.time; 
+        e.time++;
         triggerTraps(old, e.time); 
     }
     
