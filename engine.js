@@ -314,6 +314,16 @@ function playCard(index) {
         e.time += card.greedDelay; 
         triggerTraps(old, e.time);
     }
+
+    if (card.repentDamage && e.block === 0) {
+        dmg += card.repentDamage;
+    }
+
+    if (card.repentDelay && e.block === 0) {
+        let old = e.time; 
+        e.time += card.repentDelay; 
+        triggerTraps(old, e.time);
+    }
     
     if (card.collapseIntents) {
         dmg += e.intent.value + (e.altIntent.value || 0);
