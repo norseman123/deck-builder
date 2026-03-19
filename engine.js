@@ -407,7 +407,7 @@ function applyUpgrade(deckIndex) {
 }
 
 function showRewardScreen() {
-    let pool = CLASSES[selectedClass].pool;
+    let pool = CLASSES[selectedClass].starterDeck;
     let choices = [];
     
     // Copy the pool so we don't accidentally delete the master list
