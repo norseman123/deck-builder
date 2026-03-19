@@ -53,12 +53,6 @@ const CLASSES = {
         relic: { name: "Heavy Boots", desc: "Your first card each combat costs 0 Time." },
         starterDeck: [
             { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
-            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
-            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
-            { name: "Strike", time: 1, damage: 5, upgrade: {damage: 8} },
-            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
-            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
-            { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
             { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
             { name: "Stand Ground", time: 1, block: 10, anchorPlayer: 2 },
             { name: "Shackles", time: 2, damage: 6, rootEnemy: 1 },
