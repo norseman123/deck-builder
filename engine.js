@@ -252,6 +252,18 @@ function checkTimeline() {
         getElem('turn-indicator').innerText = "Player Turn"; 
         updateCombatUI(); 
     }
+// VICTORY CONDITION (Inside checkTimeline)
+    if (e.health <= 0) { 
+        updateCombatUI(); // Show them at 0 HP
+        setTimeout(() => { 
+            // If it's a boss/elite, get a relic. Otherwise, get card loot!
+            if (e.isElite || e.isBoss) showRelicDraft(); 
+            else showRewardScreen(); 
+        }, 500); 
+        return; 
+    }
+
+    
 }
 
 function executeEnemyAction() {
@@ -345,16 +357,6 @@ function playCard(index) {
             let old = e.time; e.time += push; triggerTraps(old, e.time);
         }
     }
-
-        // THE INTERCEPT:
-    if (target === e && target.hp <= 0) {
-        target.hp = 0;
-        updateCombatUI(); // Show them at 0 HP for satisfaction
-        
-        // Wait half a second so the player sees the kill, then show loot!
-        setTimeout(() => {
-            showRewardScreen();
-        }, 500); 
 
     
 }
