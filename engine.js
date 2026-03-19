@@ -405,3 +405,49 @@ function applyUpgrade(deckIndex) {
     floor++; // Advance the floor!
     showMap();
 }
+
+function showRewardScreen() {
+    let pool = CLASSES[selectedClass].pool;
+    let choices = [];
+    
+    // Copy the pool so we don't accidentally delete the master list
+    let tempPool = [...pool]; 
+    
+    // Pick 3 unique random cards (or fewer, if the pool is really small)
+    for(let i = 0; i < 3; i++) {
+        if(tempPool.length === 0) break;
+        let randomIndex = Math.floor(Math.random() * tempPool.length);
+        // Splice removes it from the temp pool so we don't get duplicates!
+        choices.push(tempPool.splice(randomIndex, 1)[0]); 
+    }
+
+    let container = document.getElementById('reward-cards-container');
+    container.innerHTML = ''; // Clear out the old rewards
+
+    choices.forEach(card => {
+        // We can reuse your awesome existing render function!
+        let cardEl = renderCardHTML(card); 
+        
+        cardEl.onclick = () => {
+            // 1. Add to the MASTER deck (not the temporary combat deck)
+            p.deck.push(card); 
+            // 2. Finish the combat sequence
+            closeRewardScreen();
+        };
+        
+        container.appendChild(cardEl);
+    });
+
+    document.getElementById('reward-screen').classList.remove('hidden');
+}
+
+function skipReward() {
+    // If the player doesn't want any of the cards, they can skip to keep their deck thin
+    closeRewardScreen();
+}
+
+function closeRewardScreen() {
+    document.getElementById('reward-screen').classList.add('hidden');
+    // CALL YOUR MAP FUNCTION HERE! (e.g., returnToMap() or advanceFloor())
+    console.log("Returning to Map...");
+}
