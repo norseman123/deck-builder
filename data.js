@@ -57,7 +57,7 @@ const CLASSES = {
             { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
             { name: "Defend", time: 1, block: 6, upgrade: {block: 9} },
             { name: "Stand Ground", time: 1, block: 10, anchorPlayer: 2 },
-            { name: "Shackles", time: 2, damage: 6, rootEnemy: 1 },
+            { name: "Shackles", time: 0, damage: 3, rootEnemy: 1 },
             { name: "Chain Grab", time: 1, damage: 8, pullEnemy: true },
             { name: "Inhuman Suffering", time: 10, damage: 40, upgrade: {damage: 60} },
             { name: "Repent", time:1, damage: 4, repentDamage: 8},
