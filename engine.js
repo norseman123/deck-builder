@@ -298,6 +298,10 @@ function playCard(index) {
     if (card.greedDamage && p.block === 0) {
         dmg += card.greedDamage;
     }
+
+    if(card.greedDelay && p.block ===0) {
+        enemyDelay += card.greedDelay;
+    }
     
     // NEW: Wanderer's Timeline Collapse
     if (card.collapseIntents) {
