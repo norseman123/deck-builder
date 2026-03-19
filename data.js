@@ -21,7 +21,7 @@ const CLASSES = {
             { name: "Shove", time: 1, damage: 4, delayEnemy: 2 },
             { name: "Lure", time: 0, block: 8, delayEnemy: -1 },
             { name: "Tactical Retreat", time: 6, block: 25, draw: 1 },
-            { name: "Broken Heart", time: 2, damage: 6, greedDamage: 14},
+            { name: "Broken Heart", time: 1, damage: 4, greedDamage: 11},
             { name: "Expell", time: 3, damage: 3, delayEnemy: 5},
         ]
     },
