@@ -8,7 +8,7 @@ const CLASSES = {
             { name: "Minefield", time: 3, trap: { delay: 3, damage: 25 } },
             { name: "Shove", time: 1, damage: 4, delayEnemy: 2 },
             { name: "Lure", time: 0, block: 8, delayEnemy: -1 },
-            { name: "Tactical Retreat", time: 6, block: 25, draw: 1 },
+            { name: "Tactical Retreat", time: 3, block: 25, draw: 1, enemyDelay: 6 },
             { name: "Broken Heart", time: 2, damage: 6, greedDamage: 14},
             { name: "Expell", time: 3, damage:3, delayEnemy: 5},
         ]
