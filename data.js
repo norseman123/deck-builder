@@ -10,6 +10,7 @@ const CLASSES = {
             { name: "Lure", time: 0, block: 8, delayEnemy: -1 },
             { name: "Tactical Retreat", time: 6, block: 25, draw: 1 },
             { name: "Broken Heart", time: 2, damage: 6, greedDamage: 14},
+            { name: "Expell", time: 3, damage:3, delayEnemy: 5}
         ]
     },
     "The Frenzied": {
