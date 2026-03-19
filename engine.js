@@ -27,41 +27,62 @@ let floor = 1;
 
 function showMap() {
     showScreen('screen-map');
-    getElem('map-floor-number').innerText = floor; // <-- Updated this line!
-    let choices = getElem('map-choices');
-//... rest of the function stays the same
-    choices.innerHTML = '';
-    
-    // Floor 10 is always the Boss
-    if (floor === 10) {
-        let b = document.createElement('button');
-        b.innerText = "BOSS FIGHT"; 
-        b.onclick = () => { floor++; startCombat(false, true); };
-        choices.appendChild(b);
-        return;
+    getElem('map-floor-number').innerText = floor;
+    let container = getElem('map-choices');
+    container.innerHTML = ''; // Clear out the old buttons
+
+    let options = [];
+
+    // The Structured Floor Plan: Dictating exactly what spawns when
+    if (floor === 1 || floor === 2) {
+        options = ['Enemy', 'Enemy']; // Easy start, force them to fight
+    } else if (floor === 4) {
+        options = ['Enemy', 'Campfire']; // First chance to heal/upgrade
+    } else if (floor === 5) {
+        options = ['Chest']; // Guaranteed Mid-Act Loot! (Only 1 option)
+    } else if (floor === 9) {
+        options = ['Campfire']; // The guaranteed pre-boss rest
+    } else if (floor === 10) {
+        options = ['Boss']; // The climax!
+    } else {
+        // Standard randomized floors (Floors 3, 6, 7, 8)
+        // You can still use a little RNG here if you want to mix it up
+        let rand = Math.random();
+        if (rand < 0.6) options = ['Enemy', 'Enemy'];
+        else if (rand < 0.9) options = ['Enemy', 'Campfire'];
+        else options = ['Enemy', 'Chest']; 
     }
 
-    // Generate 3 random room choices
-    let roomTypes = ["Enemy", "Enemy", "Elite", "Chest"]; 
-    let options = [];
-    while(options.length < 3) {
-        let r = roomTypes[Math.floor(Math.random() * roomTypes.length)];
-        options.push(r);
-    }
-    
+    // Render the actual buttons based on the array we just built
     options.forEach(type => {
         let btn = document.createElement('button');
-        btn.innerHTML = `<h3>${type}</h3>`;
-        btn.onclick = () => {
-            floor++;
-            if (type === "Enemy") startCombat(false, false);
-            if (type === "Elite") startCombat(true, false);
-            if (type === "Chest") showRelicDraft();
-        };
-        choices.appendChild(btn);
+        btn.style = "padding: 15px 30px; font-size: 18px; cursor: pointer;"; // Feel free to move this to your CSS!
+        
+        if (type === 'Enemy') {
+            btn.innerText = "⚔️ Combat";
+            btn.onclick = () => {
+                // Assuming startCombat handles enemy selection and screen swapping!
+                startCombat(); 
+            };
+        } else if (type === 'Chest') {
+            btn.innerText = "💎 Treasure Room";
+            btn.onclick = () => showRelicDraft();
+        } else if (type === 'Campfire') {
+            btn.innerText = "🔥 Campfire";
+            btn.onclick = () => showUpgradeScreen();
+        } else if (type === 'Boss') {
+            btn.innerText = "☠️ BOSS";
+            btn.style.backgroundColor = "darkred";
+            btn.style.color = "white";
+            btn.onclick = () => {
+                // You'll need to make a specific Boss function later!
+                startCombat(true); 
+            };
+        }
+        
+        container.appendChild(btn);
     });
 }
-
 function showRelicDraft() {
     showScreen('screen-relic');
     let choices = getElem('relic-choices');
