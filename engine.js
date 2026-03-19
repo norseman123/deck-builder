@@ -329,6 +329,18 @@ function playCard(index) {
         if (push > 0) {
             let old = e.time; e.time += push; triggerTraps(old, e.time);
         }
+
+        // THE INTERCEPT:
+    if (target === e && target.hp <= 0) {
+        target.hp = 0;
+        updateCombatUI(); // Show them at 0 HP for satisfaction
+        
+        // Wait half a second so the player sees the kill, then show loot!
+        setTimeout(() => {
+            showRewardScreen();
+        }, 500); 
+    }
+}
     }
 
     if (card.trap) traps.push({ time: e.time + card.trap.delay, damage: card.trap.damage });
