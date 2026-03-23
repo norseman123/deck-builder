@@ -64,8 +64,8 @@ const CLASSES = {
             { name: "Acceptance", time: 0, draw: 3, cleanse: 3},   
             { name: "Grief", time:0, damage: 12, addCorruption: 1, greedCorruption: 2},
             { name: "Denial", time:0, block: 10, addCorruption: 3},
-            { name: "Anger", time:0, damage: 16, selfDamage: 3, addCorruption: 1, greedCorruption: 4}
-            { name: "Barganing", time:0, damage: 5, block: 5, randomDiscard: 3, draw: 3, addCorruption: 2}
+            { name: "Anger", time:0, damage: 16, selfDamage: 3, addCorruption: 1, greedCorruption: 4},
+            { name: "Barganing", time:0, damage: 5, block: 5, randomDiscard: 3, draw: 3, addCorruption: 2},
         ],
             
         pool: [
