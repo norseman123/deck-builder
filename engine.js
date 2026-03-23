@@ -170,9 +170,29 @@ function updateCombatUI() {
     if (p.corruption > 0 || p.corruptionTier > 0) {
         pStatus.push(`<span class="status-corruption">Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier})</span>`);
     }
+    let hc = getElem('hand-container'); 
+    hc.innerHTML = ''; 
+    let isP = p.time <= e.time;
+    let totalCards = p.hand.length;
     
-    let hc = getElem('hand-container'); hc.innerHTML = ''; let isP = p.time <= e.time;
-    p.hand.forEach((card, i) => { let c = renderCardHTML(card); if(!isP) c.classList.add('disabled'); if(isP) c.onclick = () => playCard(i); hc.appendChild(c); });
+    p.hand.forEach((card, i) => { 
+        let c = renderCardHTML(card); 
+        if(!isP) c.classList.add('disabled'); 
+        if(isP) c.onclick = () => playCard(i); 
+        
+        // --- FANNING MATH ---
+        let middle = (totalCards - 1) / 2;
+        let offset = i - middle; // How far this card is from the center
+        
+        let angle = offset * 6; // Rotates outer cards by 6 degrees per step
+        let yOffset = Math.abs(offset) * Math.abs(offset) * 2; // Pushes outer cards down in a curve
+        
+        c.style.transform = `rotate(${angle}deg) translateY(${yOffset}px)`;
+        c.style.transformOrigin = "bottom center"; // Forces them to pivot from the bottom, not the middle!
+        c.style.transition = "transform 0.2s ease"; // Makes it smooth when drawing/playing
+        
+        hc.appendChild(c); 
+    });
 }
 
 
