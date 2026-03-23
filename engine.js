@@ -290,7 +290,7 @@ function playCard(index) {
     let dmg = card.damage || 0;
     if (card.momentumDamage) dmg += (card.momentumDamage * (p.cardsPlayedThisTurn - 1));
     if (card.randomDamage) { let min = card.randomDamage[0] + (playerRelics.find(r=>r.name==="Loaded Dice")?2:0); dmg += Math.floor(Math.random()*(card.randomDamage[1]-min+1))+min; }
-
+    if (card.addCorruption) gainCorruption(card.addCorruption);
     if (card.strip) p.block = 0;
     if (card.enemyStrip) e.block = 0;
     
@@ -378,6 +378,7 @@ function renderCardHTML(card) {
     if(card.enemyStrip) desc.push(`Shatter all Enemy BLK`);
     if(card.repentDamage) desc.push(`<b>Repent:</b> If enemy has 0 BLK, deal <span style="color:var(--color-damage)">+${card.repentDamage} DMG</span>`);
     if(card.repentDelay) desc.push(`<b>Repent:</b> If enemy has 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.repentDelay}T</span>`);
+    if(card.addCorruption) desc.push(`Gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
 
