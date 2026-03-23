@@ -61,7 +61,11 @@ const CLASSES = {
             { name: "Chain Grab", time: 1, damage: 8, pullEnemy: true },
             { name: "Inhuman Suffering", time: 10, damage: 40, upgrade: {damage: 60} },
             { name: "Repent", time:1, damage: 4, repentDamage: 8},
-            { name: "Acceptance", time: 0, draw: 3, addCorruption: 2, greedCorruption: 1, upgrade: {greedCorruption: 3} },              
+            { name: "Acceptance", time: 0, draw: 3, cleanse: 3},   
+            { name: "Grief", time:0, damage: 12, addCorruption: 1, greedCorruption: 2},
+            { name: "Denial", time:0, block: 10, addCorruption: 3},
+            { name: "Anger", time:0, damage 15, selfDamage: 3, addCorruption: 1, greedCorruption: 4}
+            { name: "Barganing", time:0, damage: 5, block: 5, randomDiscard: 3, draw: 3, addCorruption: 2}
         ],
             
         pool: [
