@@ -393,11 +393,10 @@ function showUpgradeScreen() {
     let container = getElem('upgrade-choices');
     container.innerHTML = '';
 
-    masterDeck.forEach((card, index) => {
+masterDeck.forEach((card, index) => {
         if (card.upgrade && !card.upgraded) {
-            let cardElem = document.createElement('div');
-            cardElem.className = 'card';
-            cardElem.innerHTML = renderCardHTML(card); 
+            // Simply grab the fully built card element!
+            let cardElem = renderCardHTML(card); 
             
             cardElem.onclick = () => {
                 applyUpgrade(index);
