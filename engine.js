@@ -322,6 +322,7 @@ function playCard(index) {
         e.time += card.repentDelay; 
         triggerTraps(old, e.time);
     }
+    if (card.cleanse) gainCorruption(card.corruption * -1)
     
     if (card.collapseIntents) {
         dmg += e.intent.value + (e.altIntent.value || 0);
