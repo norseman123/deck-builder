@@ -381,7 +381,17 @@ function playCard(index) {
 function renderCardHTML(card) {
     let d = document.createElement('div'); d.className = `card`; let desc = [];
     let tDisp = card.time !== undefined ? card.time : (card.randomTime ? '?' : '1');
-    if(card.damage) desc.push(`Deal <span style="color:var(--color-damage)">${card.damage}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
+   // --- DYNAMIC CORRUPTION DAMAGE ---
+    let displayDmg = card.damage || 0;
+    let dmgColor = "var(--color-damage)"; // Default red/orange
+
+    // If the player exists and has corruption, apply the +50% multiplier per tier
+    if (displayDmg > 0 && typeof p !== 'undefined' && p.corruptionTier > 0) {
+        displayDmg = Math.floor(displayDmg * (1 + (p.corruptionTier * 0.5)));
+        dmgColor = "#9d4edd"; // Turns purple so the player knows it's buffed!
+    }
+
+    if(card.damage) desc.push(`Deal <span style="color:${dmgColor}; font-weight:bold;">${displayDmg}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
     if(card.momentumDamage) desc.push(`Deal <span style="color:var(--color-damage)">+${card.momentumDamage} DMG</span> per card played this turn`);
     
     if(card.greedDamage) desc.push(`<b>Greed:</b> If you have 0 BLK, deal <span style="color:var(--color-damage)">+${card.greedDamage} DMG</span>`);
