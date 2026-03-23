@@ -147,6 +147,16 @@ function updateCombatUI() {
     getElem('player-marker').style.left = `${Math.min(100, Math.max(0, 50 + pOffset))}%`; 
     getElem('enemy-marker').style.left = `${Math.min(100, Math.max(0, 50 + eOffset))}%`;
 
+    // --- NEW DYNAMIC CORRUPTION UI ---
+    let corrUI = getElem('player-corruption');
+    if (p.corruption > 0 || p.corruptionTier > 0) {
+        let dmgMultiplier = 100 + (p.corruptionTier * 50);
+        corrUI.style.display = 'inline'; // Makes it visible
+        corrUI.innerHTML = `| Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier} - DMG: ${dmgMultiplier}%)`;
+    } else {
+        corrUI.style.display = 'none'; // Hides it when you have 0 Corruption
+    }
+
     // --- CLEARER CORRUPTION INDICATOR ---
     if (p.corruption > 0 || p.corruptionTier > 0) {
         let dmgMultiplier = 100 + (p.corruptionTier * 50); // Calculates 150%, 200%, etc.
