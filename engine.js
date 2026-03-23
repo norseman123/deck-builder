@@ -166,7 +166,10 @@ function updateCombatUI() {
     let pStatus = []; if(p.anchored > 0) pStatus.push(`Anchored (${p.anchored})`); if(p.cardsPlayedThisTurn > 0) pStatus.push(`Momentum: ${p.cardsPlayedThisTurn}`);
     getElem('player-status').innerText = pStatus.join(" | ");
     getElem('enemy-status').innerText = e.rooted > 0 ? `Rooted (${e.rooted})` : "";
-    if(p.corruption > 0 || p.corruptionTier > 0) pStatus.push(`Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier})`);
+    // Inside updateCombatUI() near the player status section:
+    if (p.corruption > 0 || p.corruptionTier > 0) {
+        pStatus.push(`<span class="status-corruption">Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier})</span>`);
+    }
     
     let hc = getElem('hand-container'); hc.innerHTML = ''; let isP = p.time <= e.time;
     p.hand.forEach((card, i) => { let c = renderCardHTML(card); if(!isP) c.classList.add('disabled'); if(isP) c.onclick = () => playCard(i); hc.appendChild(c); });
