@@ -100,7 +100,7 @@ function startCombat(isElite = false, isBoss = false) {
     e.health = e.maxHealth; 
     e.time = 2; e.block = 0; e.isBoss = isBoss; e.isElite = isElite; e.rooted = 0;
     
-    p.block = 0; p.time = 0; p.cardsPlayedThisTurn = 0; p.anchored = 0; traps = [];
+    p.block = 0; p.time = 0; p.cardsPlayedThisTurn = 0; p.anchored = 0; traps = [];p.corruption = 0; p.corruptionTier = 0;
     p.inAltTimeline = !!playerRelics.find(r => r.name === "Pocket Dimension");
     
     p.drawPile = masterDeck.map(clone).sort(() => Math.random() - 0.5); p.discardPile = []; p.hand = [];
@@ -384,7 +384,7 @@ function renderCardHTML(card) {
     if(card.repentDamage) desc.push(`<b>Repent:</b> If enemy has 0 BLK, deal <span style="color:var(--color-damage)">+${card.repentDamage} DMG</span>`);
     if(card.repentDelay) desc.push(`<b>Repent:</b> If enemy has 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.repentDelay}T</span>`);
     if(card.addCorruption) desc.push(`Gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
-    if(card.greedCorruption) desc.push(`<b> Greed:<b> If you have 0 block, gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
+    if(card.greedCorruption) desc.push(`<b> Greed:</b> If you have 0 block, gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
 
