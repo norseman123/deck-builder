@@ -67,6 +67,20 @@ body.alt-timeline { filter: hue-rotate(180deg) contrast(1.2); }
     box-shadow: 0 0 15px var(--color-time);
 }
 
+#hand-container .card:hover {
+    /* Straighten it out, lift it up, and make it larger */
+    transform: scale(1.15) translateY(-30px) rotate(0deg) !important; 
+    
+    /* Force it to the very front so it doesn't hide behind other cards */
+    z-index: 100 !important; 
+    
+    /* Add a nice drop shadow to make it pop off the screen */
+    box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.6) !important; 
+    
+    /* Changes the cursor so the player knows it's clickable */
+    cursor: pointer; 
+}
+
 .skip-btn {
     padding: 10px 20px;
     background: #444;
