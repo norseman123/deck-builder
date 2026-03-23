@@ -146,7 +146,32 @@ function updateCombatUI() {
     
     getElem('player-marker').style.left = `${Math.min(100, Math.max(0, 50 + pOffset))}%`; 
     getElem('enemy-marker').style.left = `${Math.min(100, Math.max(0, 50 + eOffset))}%`;
-    
+
+    // --- CLEARER CORRUPTION INDICATOR ---
+    if (p.corruption > 0 || p.corruptionTier > 0) {
+        let dmgMultiplier = 100 + (p.corruptionTier * 50); // Calculates 150%, 200%, etc.
+        pStatus.push(`<span class="status-corruption" style="font-size: 1.1em;">Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier} | DMG: ${dmgMultiplier}%)</span>`);
+    }
+
+    // --- DYNAMIC ENEMY INTENT TEXT ---
+    if (e.intent && e.intent.type) {
+        let intentVal = e.intent.value;
+        // If it's an attack, apply the corruption penalty to the displayed number!
+        if (e.intent.type === 'attack' && p.corruptionTier > 0) {
+            intentVal = Math.floor(intentVal * (1 + (p.corruptionTier * 0.5)));
+        }
+        getElem('enemy-intent').innerHTML = `Main: ${e.intent.type === 'attack' ? '⚔️' : '🛡️'} <span style="${e.intent.type === 'attack' && p.corruptionTier > 0 ? 'color: #9d4edd; font-weight: bold;' : ''}">${intentVal}</span> (${e.intent.time}T)`;
+    }
+
+    if (e.altIntent && e.altIntent.type && selectedClass === "The Wanderer") {
+        let altIntentVal = e.altIntent.value;
+        if (e.altIntent.type === 'attack' && p.corruptionTier > 0) {
+            altIntentVal = Math.floor(altIntentVal * (1 + (p.corruptionTier * 0.5)));
+        }
+        let altElem = getElem('alt-intent');
+        altElem.style.display = 'block';
+        altElem.innerHTML = `Alt: ${e.altIntent.type === 'attack' ? '⚔️' : '🛡️'} <span style="${e.altIntent.type === 'attack' && p.corruptionTier > 0 ? 'color: #9d4edd; font-weight: bold;' : ''}">${altIntentVal}</span> (${e.altIntent.time}T)`;
+    }
     
     document.querySelectorAll('.trap-marker').forEach(el => el.remove());
     traps.forEach(trap => {
@@ -214,15 +239,6 @@ function generateEnemyIntent() {
         time: Math.floor(Math.random()*3)+2 
     };
     
-    getElem('enemy-intent').innerText = `Main: ${e.intent.type === 'attack' ? '⚔️' : '🛡️'} ${e.intent.value} (${e.intent.time}T)`;
-    
-    let altElem = getElem('alt-intent');
-    if (selectedClass === "The Wanderer") {
-        altElem.style.display = 'block';
-        altElem.innerText = `Alt: ${e.altIntent.type === 'attack' ? '⚔️' : '🛡️'} ${e.altIntent.value} (${e.altIntent.time}T)`;
-    } else { 
-        altElem.style.display = 'none'; 
-    }
 }
 
 function checkTimeline() {
