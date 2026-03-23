@@ -305,7 +305,7 @@ function playCard(index) {
     }
 
     if (card.greedCorruption && p.block === 0) { 
-        gainCorruption(card.greedCorruption; 
+        gainCorruption(card.greedCorruption); 
     }
 
     if (card.repentDamage && e.block === 0) {
@@ -322,7 +322,7 @@ function playCard(index) {
         e.time += card.repentDelay; 
         triggerTraps(old, e.time);
     }
-    if (card.cleanse) gainCorruption(card.corruption * -1);
+    if (card.cleanse) gainCorruption(-card.cleanse);
     
     if (card.collapseIntents) {
         dmg += e.intent.value + (e.altIntent.value || 0);
@@ -464,9 +464,21 @@ function closeRewardScreen() {
 
 function gainCorruption(amount) {
     p.corruption += amount;
+    
+    // Tier Up
     while (p.corruption >= 5) {
         p.corruption -= 5;
         p.corruptionTier++;
+    }
+    
+    // Tier Down (for the cleanse mechanic!)
+    while (p.corruption < 0) {
+        if (p.corruptionTier > 0) {
+            p.corruptionTier--;
+            p.corruption += 5;
+        } else {
+            p.corruption = 0; // Bottom out at 0 Tier / 0 Corruption
+        }
     }
     updateCombatUI();
 }
