@@ -172,8 +172,19 @@ function updateCombatUI() {
 
 function generateEnemyIntent() {
     let types = ["attack", "defend", "buff"];
-    e.intent = { type: types[Math.floor(Math.random()*2)], value: Math.floor(Math.random()*10)+5, time: Math.floor(Math.random()*2)+1 };
-    e.altIntent = { type: types[Math.floor(Math.random()*2)], value: Math.floor(Math.random()*8)+3, time: Math.floor(Math.random()*3)+1 };
+    
+    // Increased the base time from +1 to +2 for both intents
+    e.intent = { 
+        type: types[Math.floor(Math.random()*2)], 
+        value: Math.floor(Math.random()*10)+5, 
+        time: Math.floor(Math.random()*2)+2 
+    };
+    
+    e.altIntent = { 
+        type: types[Math.floor(Math.random()*2)], 
+        value: Math.floor(Math.random()*8)+3, 
+        time: Math.floor(Math.random()*3)+2 
+    };
     
     getElem('enemy-intent').innerText = `Main: ${e.intent.type === 'attack' ? '⚔️' : '🛡️'} ${e.intent.value} (${e.intent.time}T)`;
     
@@ -181,17 +192,8 @@ function generateEnemyIntent() {
     if (selectedClass === "The Wanderer") {
         altElem.style.display = 'block';
         altElem.innerText = `Alt: ${e.altIntent.type === 'attack' ? '⚔️' : '🛡️'} ${e.altIntent.value} (${e.altIntent.time}T)`;
-    } else { altElem.style.display = 'none'; }
-}
-
-function triggerTraps(oldTime, newTime) {
-    if (newTime > oldTime) {
-        for (let i = traps.length - 1; i >= 0; i--) {
-            let t = traps[i];
-            if (oldTime < t.time && newTime >= t.time) {
-                dealDamage(e, t.damage); traps.splice(i, 1);
-            }
-        }
+    } else { 
+        altElem.style.display = 'none'; 
     }
 }
 
