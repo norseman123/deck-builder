@@ -3,8 +3,8 @@ let masterDeck = []; let playerRelics = [];
 let floor = 1;
 
 // State Variables
-let p = { maxHealth: 80, health: 80, block: 0, time: 0, drawPile: [], discardPile: [], hand: [], cardsPlayedThisTurn: 0, anchored: 0, inAltTimeline: false };
-let e = { health: 60, maxHealth: 60, block: 0, time: 2, isBoss: false, rooted: 0, intent: {}, altIntent: {} };
+let p = { maxHealth: 80, health: 80, block: 0, time: 0, drawPile: [], discardPile: [], hand: [], cardsPlayedThisTurn: 0, anchored: 0, inAltTimeline: false, corruption: 0, corruptionTier: 0 };
+let e = { health: 60, maxHealth: 60, block: 0, time: 3, isBoss: false, rooted: 0, intent: {}, altIntent: {} };
 let traps = [];
 
 function getElem(id) { return document.getElementById(id); }
@@ -147,6 +147,7 @@ function updateCombatUI() {
     getElem('player-marker').style.left = `${Math.min(100, Math.max(0, 50 + pOffset))}%`; 
     getElem('enemy-marker').style.left = `${Math.min(100, Math.max(0, 50 + eOffset))}%`;
     
+    
     document.querySelectorAll('.trap-marker').forEach(el => el.remove());
     traps.forEach(trap => {
         let tOffset = (trap.time - bT) * 5;
@@ -165,10 +166,14 @@ function updateCombatUI() {
     let pStatus = []; if(p.anchored > 0) pStatus.push(`Anchored (${p.anchored})`); if(p.cardsPlayedThisTurn > 0) pStatus.push(`Momentum: ${p.cardsPlayedThisTurn}`);
     getElem('player-status').innerText = pStatus.join(" | ");
     getElem('enemy-status').innerText = e.rooted > 0 ? `Rooted (${e.rooted})` : "";
+    if(p.corruption > 0 || p.corruptionTier > 0) pStatus.push(`Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier})`);
     
     let hc = getElem('hand-container'); hc.innerHTML = ''; let isP = p.time <= e.time;
     p.hand.forEach((card, i) => { let c = renderCardHTML(card); if(!isP) c.classList.add('disabled'); if(isP) c.onclick = () => playCard(i); hc.appendChild(c); });
 }
+
+
+
 
 function generateEnemyIntent() {
     let types = ["attack", "defend", "buff"];
@@ -244,6 +249,13 @@ function executeEnemyAction() {
 }
 
 function dealDamage(target, amount, bypassBlock = false) {
+
+// CORRUPTION PENALTY: Player takes +50% damage per tier
+    if (target === p && p.corruptionTier > 0) {
+        amount = Math.floor(amount * (1 + (p.corruptionTier * 0.5))); 
+    }
+
+    
     if (!bypassBlock) {
         let blockDamage = Math.min(target.block, amount);
         target.block -= blockDamage;
@@ -291,6 +303,11 @@ function playCard(index) {
 
     if (card.repentDamage && e.block === 0) {
         dmg += card.repentDamage;
+    }
+
+    // CORRUPTION BUFF: Player deals +50% damage per tier
+    if (dmg > 0 && p.corruptionTier > 0) {
+        dmg = Math.floor(dmg * (1 + (p.corruptionTier * 0.5)));
     }
 
     if (card.repentDelay && e.block === 0) {
@@ -433,4 +450,13 @@ function closeRewardScreen() {
     document.getElementById('reward-screen').classList.add('hidden');
     floor++;
     showMap();
+}
+
+function gainCorruption(amount) {
+    p.corruption += amount;
+    while (p.corruption >= 5) {
+        p.corruption -= 5;
+        p.corruptionTier++;
+    }
+    updateCombatUI();
 }
