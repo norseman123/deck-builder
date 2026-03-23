@@ -385,6 +385,7 @@ function renderCardHTML(card) {
     if(card.repentDelay) desc.push(`<b>Repent:</b> If enemy has 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.repentDelay}T</span>`);
     if(card.addCorruption) desc.push(`Gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
     if(card.greedCorruption) desc.push(`<b> Greed:</b> If you have 0 block, gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
+    if(card.cleanse) desc.push(`Lose <span class="status-corruption">${card.cleanse} Corruption</span?`);
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
 
