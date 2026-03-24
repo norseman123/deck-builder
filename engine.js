@@ -195,15 +195,19 @@ function updateCombatUI() {
     
     if (p.inAltTimeline) document.body.classList.add('alt-timeline'); else document.body.classList.remove('alt-timeline');
     
-    getElem('player-hp-text').innerText = `${Math.max(0,p.health)}/${p.maxHealth}`; getElem('player-hp-fill').style.width = `${Math.max(0,(p.health/p.maxHealth)*100)}%`; getElem('player-block').innerText = p.block;
-    getElem('enemy-hp-text').innerText = `${Math.max(0,e.health)}/${e.maxHealth}`; getElem('enemy-hp-fill').style.width = `${Math.max(0,(e.health/e.maxHealth)*100)}%`; getElem('enemy-block').innerText = e.block;
-    
-    let pStatus = []; if(p.anchored > 0) pStatus.push(`Anchored (${p.anchored})`); if(p.cardsPlayedThisTurn > 0) pStatus.push(`Momentum: ${p.cardsPlayedThisTurn}`);
-    getElem('player-status').innerText = pStatus.join(" | ");
-    getElem('enemy-status').innerText = e.rooted > 0 ? `Rooted (${e.rooted})` : "";
-    // Inside updateCombatUI() near the player status section:
+// Your existing HP and Block updates:
+    getElem('player-hp-text').innerText = `${Math.max(0,p.health)}/${p.maxHealth}`; 
+    getElem('player-hp-fill').style.width = `${Math.max(0,(p.health/p.maxHealth)*100)}%`; 
+    getElem('player-block').innerText = p.block;
+
+    // --- NEW DYNAMIC CORRUPTION UI ---
+    let corrUI = getElem('player-corruption');
     if (p.corruption > 0 || p.corruptionTier > 0) {
-        pStatus.push(`<span class="status-corruption">Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier})</span>`);
+        let dmgMultiplier = 100 + (p.corruptionTier * 50);
+        corrUI.style.display = 'inline'; // Makes it visible
+        corrUI.innerHTML = `| Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier} - DMG: ${dmgMultiplier}%)`;
+    } else {
+        corrUI.style.display = 'none'; // Hides it when you have 0 Corruption
     }
     let hc = getElem('hand-container'); 
     hc.innerHTML = ''; 
