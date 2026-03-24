@@ -1,4 +1,4 @@
-let selectedClass = "";
+flet selectedClass = "";
 let masterDeck = []; let playerRelics = [];
 let floor = 1;
 
@@ -316,6 +316,7 @@ if (card.pullEnemy && e.time > p.time) {
         let old = e.time;
         e.time = p.time + 1; // Pulls them to exactly 1 tick ahead of you!
         if (typeof triggerTraps === "function") triggerTraps(old, e.time); 
+}
     
     if (p.time >= e.time && e.rooted > 0) {
         e.rooted--;
