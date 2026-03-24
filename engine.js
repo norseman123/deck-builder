@@ -141,9 +141,15 @@ function renderTimeline() {
 }
 
 function updateCombatUI() {
-    let bT = Math.min(p.time, e.time); 
+let bT = Math.min(p.time, e.time); 
     let pOffset = (p.time - bT) * 5; let eOffset = (e.time - bT) * 5;
+    // --- MOVE TIMELINE MARKERS ---
+    let pMark = getElem('player-marker');
+    let eMark = getElem('enemy-marker');
     
+    // 50 is the middle of the timeline. We add the offset to push them to the right!
+    if (pMark) pMark.style.left = `${50 + pOffset}%`;
+    if (eMark) eMark.style.left = `${50 + eOffset}%`;
     // --- DYNAMIC ENEMY INTENT TEXT ---
     if (e.intent && e.intent.type) {
         let intentVal = e.intent.value;
@@ -283,12 +289,20 @@ function checkTimeline() {
 function executeEnemyAction() {
     let activeIntent = (selectedClass === "The Wanderer" && p.inAltTimeline) ? e.altIntent : e.intent;
     
-    if (activeIntent.type === "attack") dealDamage(p, activeIntent.value); else e.block += activeIntent.value;
+    if (activeIntent.type === "attack") {
+        dealDamage(p, activeIntent.value); 
+    } else {
+        e.block += activeIntent.value;
+    }
     
     let oldTime = e.time;
     e.time += activeIntent.time; 
     
-    triggerTraps(oldTime, e.time);
+    // SAFETY CHECK: Only trigger traps if the function actually exists!
+    if (typeof triggerTraps === "function") {
+        triggerTraps(oldTime, e.time);
+    }
+    
     generateEnemyIntent();
 }
 
