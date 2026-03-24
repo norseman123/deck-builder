@@ -144,25 +144,6 @@ function updateCombatUI() {
     let bT = Math.min(p.time, e.time); 
     let pOffset = (p.time - bT) * 5; let eOffset = (e.time - bT) * 5;
     
-    getElem('player-marker').style.left = `${Math.min(100, Math.max(0, 50 + pOffset))}%`; 
-    getElem('enemy-marker').style.left = `${Math.min(100, Math.max(0, 50 + eOffset))}%`;
-
-    // --- NEW DYNAMIC CORRUPTION UI ---
-    let corrUI = getElem('player-corruption');
-    if (p.corruption > 0 || p.corruptionTier > 0) {
-        let dmgMultiplier = 100 + (p.corruptionTier * 50);
-        corrUI.style.display = 'inline'; // Makes it visible
-        corrUI.innerHTML = `| Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier} - DMG: ${dmgMultiplier}%)`;
-    } else {
-        corrUI.style.display = 'none'; // Hides it when you have 0 Corruption
-    }
-
-    // --- CLEARER CORRUPTION INDICATOR ---
-    if (p.corruption > 0 || p.corruptionTier > 0) {
-        let dmgMultiplier = 100 + (p.corruptionTier * 50); // Calculates 150%, 200%, etc.
-        pStatus.push(`<span class="status-corruption" style="font-size: 1.1em;">Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier} | DMG: ${dmgMultiplier}%)</span>`);
-    }
-
     // --- DYNAMIC ENEMY INTENT TEXT ---
     if (e.intent && e.intent.type) {
         let intentVal = e.intent.value;
