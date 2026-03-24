@@ -1,4 +1,4 @@
-flet selectedClass = "";
+let selectedClass = "";
 let masterDeck = []; let playerRelics = [];
 let floor = 1;
 
