@@ -181,18 +181,28 @@ function updateCombatUI() {
     getElem('player-hp-fill').style.width = `${Math.max(0,(p.health/p.maxHealth)*100)}%`; 
     getElem('player-block').innerText = p.block;
 
-    // --- NEW DYNAMIC CORRUPTION UI ---
-    let corrUI = getElem('player-corruption');
+// --- FOOLPROOF CORRUPTION UI INJECTION ---
+    let corrElem = getElem('player-corruption-ui');
+    if (!corrElem) {
+        corrElem = document.createElement('span');
+        corrElem.id = 'player-corruption-ui';
+        corrElem.style.marginLeft = "15px";
+        corrElem.style.fontWeight = "bold";
+        getElem('player-hp-text').parentNode.appendChild(corrElem);
+    }
+
     if (p.corruption > 0 || p.corruptionTier > 0) {
         let dmgMultiplier = 100 + (p.corruptionTier * 50);
-        corrUI.style.display = 'inline'; // Makes it visible
-        corrUI.innerHTML = `| Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier} - DMG: ${dmgMultiplier}%)`;
+        corrElem.style.display = 'inline';
+        corrElem.className = 'status-corruption';
+        corrElem.innerHTML = `Corruption: ${p.corruption}/5 (Tier ${p.corruptionTier} | DMG: ${dmgMultiplier}%)`;
     } else {
-        corrUI.style.display = 'none'; // Hides it when you have 0 Corruption
+        corrElem.style.display = 'none';
     }
+    
     let hc = getElem('hand-container'); 
     hc.innerHTML = ''; 
-    let isP = p.time <= e.time;
+    let isP = (p.time <= e.time) || (p.time >= e.time && e.rooted > 0);
     let totalCards = p.hand.length;
     
     p.hand.forEach((card, i) => { 
@@ -302,12 +312,10 @@ function dealDamage(target, amount, bypassBlock = false) {
 function playCard(index) {
     let card = p.hand.splice(index, 1)[0];
 
-    if (card.pullEnemy && p.time < e.time) {
+if (card.pullEnemy && e.time > p.time) {
         let old = e.time;
-        e.time = p.time; 
-        e.time--;
-        triggerTraps(old, e.time); 
-    }
+        e.time = p.time + 1; // Pulls them to exactly 1 tick ahead of you!
+        if (typeof triggerTraps === "function") triggerTraps(old, e.time); 
     
     if (p.time >= e.time && e.rooted > 0) {
         e.rooted--;
@@ -362,12 +370,6 @@ function playCard(index) {
     let hits = card.hits || 1;
     for(let i=0; i<hits; i++) { if (dmg > 0) dealDamage(e, dmg); }
     
-    if (card.pullEnemy && e.time > p.time) {
-        let old = e.time;
-        e.time = p.time; 
-        triggerTraps(old, e.time); 
-    }
-
     if (card.momentumDelay) {
         let push = card.momentumDelay * (p.cardsPlayedThisTurn - 1);
         if (push > 0) {
@@ -392,26 +394,26 @@ function playCard(index) {
 function renderCardHTML(card) {
     let d = document.createElement('div'); d.className = `card`; let desc = [];
     let tDisp = card.time !== undefined ? card.time : (card.randomTime ? '?' : '1');
-   // --- DYNAMIC CORRUPTION DAMAGE ---
-    let displayDmg = card.damage || 0;
-    let dmgColor = "var(--color-damage)"; // Default red/orange
-
-    // If the player exists and has corruption, apply the +50% multiplier per tier
-    if (displayDmg > 0 && typeof p !== 'undefined' && p.corruptionTier > 0) {
-        displayDmg = Math.floor(displayDmg * (1 + (p.corruptionTier * 0.5)));
-        dmgColor = "#9d4edd"; // Turns purple so the player knows it's buffed!
-    }
-
-    if(card.damage) desc.push(`Deal <span style="color:${dmgColor}; font-weight:bold;">${displayDmg}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
-    if(card.momentumDamage) desc.push(`Deal <span style="color:var(--color-damage)">+${card.momentumDamage} DMG</span> per card played this turn`);
     
+    // --- DYNAMIC DAMAGE MATH ---
+    let displayDmg = card.damage || 0;
+    let isBuffed = typeof p !== 'undefined' && p.corruptionTier > 0 && displayDmg > 0;
+    if (isBuffed) {
+        displayDmg = Math.floor(displayDmg * (1 + (p.corruptionTier * 0.5)));
+    }
+    
+    if(card.damage) {
+        let dmgColor = isBuffed ? "#9d4edd" : "var(--color-damage)";
+        desc.push(`Deal <span style="color:${dmgColor}; font-weight:bold;">${displayDmg}</span> DMG${card.hits>1?` (x${card.hits})`:''}`);
+    }
+    
+    // (Keep the rest of your pushes exactly as they were)
+    if(card.momentumDamage) desc.push(`Deal <span style="color:var(--color-damage)">+${card.momentumDamage} DMG</span> per card played this turn`);
     if(card.greedDamage) desc.push(`<b>Greed:</b> If you have 0 BLK, deal <span style="color:var(--color-damage)">+${card.greedDamage} DMG</span>`);
     if(card.greedDelay) desc.push(`<b>Greed:</b> If you have 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.greedDelay}T</span>`);
-    
     if(card.collapseIntents) desc.push(`Deal DMG equal to the Enemy's combined intents`);
     if(card.pullEnemy) desc.push(`If the Enemy is ahead, drag them to your Time`);
     if(card.momentumDelay) desc.push(`Push Enemy <span style="color:var(--color-time)">+${card.momentumDelay}T</span> per card played this turn`);
-
     if(card.randomDamage) desc.push(`Deal <span style="color:var(--color-damage)">${card.randomDamage[0]}-${card.randomDamage[1]}</span> DMG`);
     if(card.trap) desc.push(`Place a <span style="color:var(--color-damage)">${card.trap.damage} DMG</span> Trap at <span style="color:var(--color-time)">+${card.trap.delay}T</span>`);
     if(card.block) desc.push(`Gain <span style="color:var(--color-block)">${card.block}</span> BLK`);
@@ -425,8 +427,8 @@ function renderCardHTML(card) {
     if(card.repentDamage) desc.push(`<b>Repent:</b> If enemy has 0 BLK, deal <span style="color:var(--color-damage)">+${card.repentDamage} DMG</span>`);
     if(card.repentDelay) desc.push(`<b>Repent:</b> If enemy has 0 BLK, push Enemy <span style="color:var(--color-time)">+${card.repentDelay}T</span>`);
     if(card.addCorruption) desc.push(`Gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
-    if(card.greedCorruption) desc.push(`<b> Greed:</b> If you have 0 block, gain <span class="status-corruption">${card.addCorruption} Corruption</span>`);
-    if(card.cleanse) desc.push(`Lose <span class="status-corruption">${card.cleanse} Corruption</span?`);
+    if(card.greedCorruption) desc.push(`<b>Greed:</b> If you have 0 block, gain <span class="status-corruption">${card.greedCorruption} Corruption</span>`);
+    
     d.innerHTML = `<div class="card-time">${tDisp}T</div><div class="card-title">${card.name}</div><div class="card-desc">${desc.join("<br>")}</div>`; return d;
 }
 
